@@ -3,290 +3,378 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>融合设备中心 · 协作球入口 Demo</title>
+<title>方案1 · Bubble Chat</title>
 <script>if(sessionStorage.getItem('demo_unlocked')!=='1'&&!window.frameElement)location.replace('index.html');</script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
 body {
   font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
-  background: #050a15;
-  color: #fff;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow: hidden;
+  background: #050a15; color: #fff; height: 100vh;
+  display: flex; flex-direction: column; align-items: center; overflow: hidden;
 }
 
-/* 顶部导航 */
+/* 顶部步骤导航 */
 .demo-nav {
-  flex-shrink: 0;
-  padding: 10px 0 6px;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  z-index: 200;
+  flex-shrink: 0; padding: 8px 0 4px;
+  display: flex; justify-content: center; gap: 4px; z-index: 200; flex-wrap: wrap;
 }
 .demo-nav button {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: transparent;
-  color: rgba(255,255,255,0.4);
-  cursor: pointer;
-  transition: all 0.3s;
+  padding: 5px 10px; border-radius: 16px; font-size: 10px; font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.1); background: transparent;
+  color: rgba(255,255,255,0.4); cursor: pointer; transition: all 0.3s;
 }
 .demo-nav button.active {
-  background: rgba(0,122,255,0.15);
-  border-color: rgba(0,122,255,0.3);
+  background: rgba(0,122,255,0.15); border-color: rgba(0,122,255,0.3);
   color: rgba(100,180,255,0.9);
 }
-.demo-nav span { color: rgba(255,255,255,0.15); font-size: 11px; line-height: 30px; }
+.demo-nav span { color: rgba(255,255,255,0.15); font-size: 10px; line-height: 26px; }
 
 /* 手机壳 */
 .phone {
-  width: 390px;
-  height: 700px;
-  border-radius: 32px;
-  overflow: hidden;
+  width: 375px; height: 680px; border-radius: 32px; overflow: hidden;
   border: 2px solid rgba(255,255,255,0.08);
-  box-shadow: 0 0 40px rgba(0,0,0,0.4);
-  flex-shrink: 0;
-  position: relative;
+  box-shadow: 0 0 40px rgba(0,0,0,0.4); flex-shrink: 0; position: relative;
 }
-
-/* ========== 页面容器 ========== */
 .page {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   transition: transform 0.45s cubic-bezier(0.32,0.72,0,1), opacity 0.45s;
 }
 .page.hidden-right { transform: translateX(100%); opacity: 0; pointer-events: none; }
 .page.hidden-left  { transform: translateX(-30%); opacity: 0.5; pointer-events: none; }
 
-/* ========== 设备中心页 ========== */
-.dc-page {
-  background: linear-gradient(170deg, #1a1040 0%, #1e2a5a 25%, #2a3a6a 45%, #3a4a7a 65%, #4a5a8a 85%, #3a4a7a 100%);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
 .status-bar {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 24px 0; font-size: 14px; font-weight: 600;
-  color: rgba(255,255,255,0.7);
+  padding: 14px 24px 0; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7);
+}
+</style>
+<style>
+/* ===== 小爱对话页 ===== */
+.xiaoai-page {
+  background: linear-gradient(180deg, #0a0e1a, #0d1525);
+  display: flex; flex-direction: column;
+}
+.xiaoai-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 20px 12px;
+}
+.xiaoai-header .back { font-size: 20px; color: rgba(255,255,255,0.5); cursor: pointer; }
+.xiaoai-header .title { font-size: 16px; font-weight: 600; }
+.xiaoai-header .more { font-size: 16px; color: rgba(255,255,255,0.3); }
+
+.xiaoai-msgs {
+  flex: 1; overflow-y: auto; padding: 12px 16px 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+/* 用户消息 */
+.xa-user { display: flex; justify-content: flex-end; }
+.xa-user .xa-bl {
+  background: linear-gradient(135deg, rgba(0,122,255,0.2), rgba(0,122,255,0.1));
+  border: 1px solid rgba(0,122,255,0.2); border-radius: 16px 16px 4px 16px;
+  padding: 10px 14px; font-size: 13px; line-height: 1.5; max-width: 260px;
+  color: rgba(180,220,255,0.9);
+}
+/* 小爱回复 */
+.xa-ai { display: flex; gap: 8px; align-items: flex-start; }
+.xa-ai-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #4a6cf7, #6366f1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.xa-ai .xa-bl {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px 16px 16px 4px; padding: 10px 14px; font-size: 13px;
+  line-height: 1.5; max-width: 270px; color: rgba(255,255,255,0.85);
+}
+
+/* 引流卡片 */
+.task-card {
+  margin: 4px 0 4px 40px;
+  background: linear-gradient(135deg, rgba(100,60,200,0.12), rgba(60,120,255,0.08));
+  border: 1px solid rgba(130,100,255,0.2); border-radius: 14px;
+  padding: 12px 14px; max-width: 260px; cursor: pointer;
+  transition: transform 0.2s;
+}
+.task-card:active { transform: scale(0.97); }
+.task-card-title { font-size: 12px; font-weight: 600; color: rgba(200,180,255,0.9); margin-bottom: 6px; }
+.task-card-info { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.5; }
+.task-card-status {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 8px; padding: 3px 10px; border-radius: 10px;
+  background: rgba(130,100,255,0.15); font-size: 10px; color: rgba(180,160,255,0.8);
+}
+.task-card-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; animation: dot-blink 1.5s infinite; }
+.task-card.done-card { border-color: rgba(0,230,118,0.2); background: linear-gradient(135deg, rgba(0,200,100,0.08), rgba(0,180,80,0.05)); }
+.task-card.done-card .task-card-title { color: rgba(180,255,210,0.9); }
+.task-card.done-card .task-card-status { background: rgba(0,200,100,0.15); color: rgba(150,255,200,0.8); }
+.task-card.done-card .task-card-status .dot { background: #34d399; animation: none; }
+@keyframes dot-blink { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+/* 小爱输入框 */
+.xiaoai-input {
+  padding: 12px 16px 28px; display: flex; gap: 10px; align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10,14,26,0.95);
+}
+.xiaoai-input input {
+  flex: 1; padding: 10px 14px; border-radius: 20px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  color: #fff; font-size: 14px; outline: none;
+}
+.xiaoai-input .send-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0,122,255,0.3); border: none;
+  color: rgba(255,255,255,0.6); font-size: 16px; cursor: pointer;
+}
+</style>
+<style>
+/* ===== 超级岛（灵动岛） ===== */
+.super-island {
+  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  z-index: 100;
+  background: rgba(0,0,0,0.85); border-radius: 22px;
+  padding: 6px 14px 6px 10px;
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  transform: translateX(-50%) scale(0.8);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+.super-island.show {
+  opacity: 1; pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+.si-icons { display: flex; gap: -2px; }
+.si-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; margin-left: -4px;
+}
+.si-icon:first-child { margin-left: 0; }
+.si-icon.si-active { background: rgba(130,100,255,0.3); }
+.si-text { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.8); }
+.si-status {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #a78bfa; animation: dot-blink 1.5s infinite;
+}
+.super-island.si-done .si-status { background: #34d399; animation: none; }
+.super-island.si-done .si-icon.si-active { background: rgba(0,200,100,0.3); }
+
+/* ===== 任意界面页（微信/视频等模拟） ===== */
+.any-page {
+  background: linear-gradient(180deg, #1a1a2e, #16213e);
+  display: flex; flex-direction: column;
+}
+.any-header {
+  padding: 8px 20px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.any-header .title { font-size: 16px; font-weight: 600; }
+.any-content {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px; color: rgba(255,255,255,0.3);
+}
+.any-content .mock-icon { font-size: 48px; opacity: 0.4; }
+.any-content .mock-text { font-size: 13px; }
+.any-bottom {
+  padding: 16px 20px 28px;
+  display: flex; justify-content: space-around;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.any-tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: rgba(255,255,255,0.3); }
+.any-tab .tab-icon { font-size: 20px; }
+</style>
+<style>
+/* ===== 设备中心页 ===== */
+.dc-page {
+  background: linear-gradient(170deg, #1a1040 0%, #1e2a5a 25%, #2a3a6a 45%, #3a4a7a 65%, #4a5a8a 85%, #3a4a7a 100%);
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .dc-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 24px 8px;
+  display: flex; justify-content: space-between; align-items: center; padding: 14px 24px 8px;
 }
-.dc-header .back { font-size: 22px; color: rgba(255,255,255,0.6); }
+.dc-header .back { font-size: 22px; color: rgba(255,255,255,0.6); cursor: pointer; }
 .dc-header .title { font-size: 17px; font-weight: 600; }
 .dc-header .more { font-size: 18px; color: rgba(255,255,255,0.4); }
-
-/* 气泡区域 */
-.bubble-area {
-  position: relative;
-  width: 100%;
-  padding-bottom: 40px;
-}
-
-/* 设备气泡通用 */
+.bubble-area { position: relative; width: 100%; padding-bottom: 20px; }
 .dev-bubble {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: transform 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer; transition: transform 0.2s;
 }
 .dev-bubble:active { transform: scale(0.95); }
-
 .b-circle {
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background: rgba(180,200,230,0.08);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  position: relative; background: rgba(180,200,230,0.08);
   border: 1px solid rgba(255,255,255,0.06);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
 }
 .b-name { font-size: 12px; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; }
-.b-sub  { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: -4px; text-align: center; }
-
-/* 主设备行 */
-.row-main {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 0;
-  padding: 12px 0 8px;
-  position: relative;
-}
-.row-main .b-circle { width: 130px; height: 130px; }
-.row-main .emoji { font-size: 48px; }
+.b-sub { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: -4px; text-align: center; }
+.row-main { display: flex; justify-content: center; padding: 12px 0 8px; position: relative; }
+.row-main .b-circle { width: 120px; height: 120px; }
 .earbuds {
-  position: absolute;
-  top: -2px; right: -2px;
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  background: rgba(50,120,255,0.35);
-  border: 1.5px solid rgba(100,160,255,0.4);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px;
+  position: absolute; top: -2px; right: -2px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(50,120,255,0.35); border: 1.5px solid rgba(100,160,255,0.4);
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
 }
-
-/* 设备网格 - 用于放协作球和设备球 */
 .device-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  padding: 10px 28px;
-  gap: 12px 0;
+  display: flex; flex-wrap: wrap; justify-content: space-around;
+  padding: 8px 24px; gap: 10px 0;
 }
-.device-grid .dev-bubble,
-.device-grid .collab-bubble {
-  width: calc(50% - 8px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.device-grid .dev-bubble, .device-grid .collab-bubble {
+  width: calc(50% - 8px); display: flex; flex-direction: column; align-items: center;
 }
-.device-grid .b-circle { width: 85px; height: 85px; }
-.device-grid .emoji { font-size: 28px; }
+.device-grid .b-circle { width: 78px; height: 78px; }
+.scene-circle { background: rgba(255,180,0,0.1) !important; border-color: rgba(255,180,0,0.2) !important; }
 
-/* 场景圆 */
-.scene-circle {
-  background: rgba(255,180,0,0.1) !important;
-  border-color: rgba(255,180,0,0.2) !important;
-}
-
-/* ========== 协作球 ========== */
+/* 协作球 */
 .collab-bubble {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: transform 0.2s;
+  display: none; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer; transition: transform 0.2s;
 }
 .collab-bubble:active { transform: scale(0.95); }
-.collab-bubble.show {
-  display: flex;
-}
-
+.collab-bubble.show { display: flex; }
 .collab-circle {
-  width: 85px;
-  height: 85px;
-  border-radius: 50%;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 78px; height: 78px; border-radius: 50%;
+  position: relative; display: flex; align-items: center; justify-content: center;
 }
-
-/* 协作球背景 */
 .collab-bg {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
+  position: absolute; inset: 0; border-radius: 50%;
   background: linear-gradient(135deg, rgba(100,60,200,0.25), rgba(60,120,255,0.2));
   border: 1.5px solid rgba(130,100,255,0.3);
 }
-
-/* 呼吸光晕 */
 .collab-glow {
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
+  position: absolute; inset: -8px; border-radius: 50%;
   background: radial-gradient(circle, rgba(100,80,220,0.2) 0%, transparent 70%);
   animation: glow-pulse 3s ease-in-out infinite;
 }
-.collab-bubble.done .collab-glow {
-  background: radial-gradient(circle, rgba(0,200,100,0.2) 0%, transparent 70%);
-}
+.collab-bubble.done .collab-glow { background: radial-gradient(circle, rgba(0,200,100,0.2) 0%, transparent 70%); }
 .collab-bubble.done .collab-bg {
   background: linear-gradient(135deg, rgba(0,200,100,0.2), rgba(0,180,80,0.15));
   border-color: rgba(0,230,118,0.35);
 }
-@keyframes glow-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.15); opacity: 1; }
-}
-
-/* 球内设备图标 */
-.collab-devices {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
+@keyframes glow-pulse { 0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.15);opacity:1} }
+.collab-devices { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .collab-devices-top { display: flex; justify-content: center; }
 .collab-devices-bottom { display: flex; gap: 6px; }
-.cd-icon {
-  font-size: 18px;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
-  animation: cd-float 3s ease-in-out infinite;
-}
+.cd-icon { font-size: 16px; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3)); animation: cd-float 3s ease-in-out infinite; }
 .cd-icon:nth-child(1) { animation-delay: 0s; }
 .cd-icon:nth-child(2) { animation-delay: -1s; }
 .collab-devices-top .cd-icon { animation-delay: -2s; }
-
-@keyframes cd-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-.collab-name {
-  font-size: 11px;
-  color: rgba(200,180,255,0.8);
-  font-weight: 500;
-  white-space: nowrap;
-}
+@keyframes cd-float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)} }
+.collab-name { font-size: 11px; color: rgba(200,180,255,0.8); font-weight: 500; white-space: nowrap; }
 .collab-bubble.done .collab-name { color: rgba(180,255,210,0.8); }
+</style>
+<style>
+/* ===== 群聊页 ===== */
+.chat-page { background: linear-gradient(180deg, #0c1829, #080e1e); display: flex; flex-direction: column; }
+.chat-header { display: flex; align-items: center; gap: 12px; padding: 0 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.chat-back { font-size: 22px; color: rgba(255,255,255,0.6); cursor: pointer; padding: 4px; }
+.chat-hinfo { flex: 1; }
+.chat-htitle { font-size: 16px; font-weight: 600; }
+.chat-hsub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+.chat-avatars { display: flex; }
+.chat-av { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 2px solid #0c1829; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-left: -6px; }
+.chat-av:first-child { margin-left: 0; }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 16px 16px 20px; display: flex; flex-direction: column; gap: 14px; -webkit-overflow-scrolling: touch; }
+.msg-time { text-align: center; font-size: 10px; color: rgba(255,255,255,0.2); padding: 4px 0; }
+.msg-r { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.msg-r .sn { font-size: 10px; color: rgba(0,150,255,0.6); font-weight: 500; margin-right: 4px; }
+.msg-r .bl { background: linear-gradient(135deg, rgba(0,122,255,0.15), rgba(0,122,255,0.08)); border: 1px solid rgba(0,122,255,0.2); border-radius: 16px 16px 4px 16px; padding: 10px 14px; font-size: 13px; line-height: 1.6; max-width: 260px; color: rgba(180,220,255,0.9); }
+.msg-l { display: flex; gap: 8px; align-items: flex-start; }
+.msg-av { width: 32px; height: 32px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.08); }
+.msg-av.av-d { background: rgba(0,230,118,0.08); border-color: rgba(0,230,118,0.2); }
+.msg-av.av-w { background: rgba(255,215,64,0.08); border-color: rgba(255,215,64,0.15); }
+.msg-c { display: flex; flex-direction: column; gap: 3px; }
+.msg-c .sn { font-size: 10px; color: rgba(255,255,255,0.35); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.msg-tag { font-size: 9px; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
+.msg-c .bl { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px 16px 16px 4px; padding: 10px 14px; font-size: 13px; line-height: 1.5; max-width: 240px; color: rgba(255,255,255,0.8); }
+.msg-c .bl.bl-d { background: rgba(0,230,118,0.06); border-color: rgba(0,230,118,0.12); color: rgba(200,255,220,0.9); }
+.msg-sys { text-align: center; font-size: 11px; color: rgba(255,255,255,0.25); padding: 2px 0; }
+.chat-footer { padding: 14px 20px 28px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(8,14,30,0.95); flex-shrink: 0; }
+.chat-footer span { font-size: 12px; color: rgba(255,255,255,0.25); }
 </style>
 </head>
 <body>
-
 <div class="demo-nav">
-  <button class="active" onclick="showState('normal')">① 日常态</button>
-  <span>→</span>
-  <button onclick="showState('collab')">② 协作进行中</button>
-  <span>→</span>
-  <button onclick="showState('done')">③ 协作完成</button>
+  <button class="active" onclick="go('xiaoai')">① 小爱对话</button><span>→</span>
+  <button onclick="go('card')">② 引流卡片</button><span>→</span>
+  <button onclick="go('island')">③ 超级岛</button><span>→</span>
+  <button onclick="go('dc')">④ 设备中心</button><span>→</span>
+  <button onclick="go('done')">⑤ 完成</button>
 </div>
-
 <div class="phone">
-  <!-- ===== 设备中心页 ===== -->
-  <div class="page dc-page" id="pageDC">
-    <div class="status-bar"><span>2:36</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
+  <!-- P1: 小爱对话页 -->
+  <div class="page xiaoai-page" id="pageXiaoai">
+    <div class="status-bar"><span>18:30</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
+    <div class="xiaoai-header">
+      <span class="back">←</span><span class="title">小爱同学</span><span class="more">⋯</span>
+    </div>
+    <div class="xiaoai-msgs" id="xiaoaiMsgs">
+      <div class="xa-user"><div class="xa-bl">帮我搞个聚会氛围，客厅灯调暖光，音箱放点轻松的爵士，电视开个氛围屏保</div></div>
+      <div class="xa-ai">
+        <div class="xa-ai-av">🤖</div>
+        <div class="xa-bl">好的，我来帮你安排 🎉<br><br>正在协调 3 台设备：<br>💡 客厅吸顶灯 → 暖光<br>🔊 小米音箱 → 爵士歌单<br>📺 小米电视 → 氛围屏保<br><br>已发起设备协作，你可以随时查看进度 👇</div>
+      </div>
+      <!-- 引流卡片 -->
+      <div class="task-card" id="taskCard" onclick="go('dc')" style="display:none">
+        <div class="task-card-title">🎉 聚会氛围</div>
+        <div class="task-card-info">💡 客厅灯 · 🔊 音箱 · 📺 电视</div>
+        <div class="task-card-status"><span class="dot"></span> 3 台设备协作中</div>
+      </div>
+    </div>
+    <div class="xiaoai-input">
+      <input type="text" placeholder="跟小爱说点什么..." disabled>
+      <button class="send-btn">↑</button>
+    </div>
+  </div>
+
+  <!-- P2: 任意界面（模拟退出对话后） -->
+  <div class="page any-page hidden-right" id="pageAny">
+    <div class="super-island" id="superIsland" onclick="go('dc')">
+      <div class="si-icons">
+        <span class="si-icon si-active">💡</span>
+        <span class="si-icon">🔊</span>
+        <span class="si-icon">📺</span>
+      </div>
+      <span class="si-text" id="siText">聚会氛围 · 3台协作中</span>
+      <span class="si-status" id="siStatus"></span>
+    </div>
+    <div class="status-bar"><span>18:35</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
+    <div class="any-header"><span class="title" style="margin-left:auto;margin-right:auto;">微信</span></div>
+    <div class="any-content">
+      <span class="mock-icon">💬</span>
+      <span class="mock-text">用户正在刷微信...</span>
+      <span class="mock-text" style="font-size:11px;margin-top:8px;">👆 点击顶部超级岛查看协作状态</span>
+    </div>
+    <div class="any-bottom">
+      <div class="any-tab"><span class="tab-icon">💬</span>微信</div>
+      <div class="any-tab"><span class="tab-icon">👤</span>通讯录</div>
+      <div class="any-tab"><span class="tab-icon">🔍</span>发现</div>
+      <div class="any-tab"><span class="tab-icon">👤</span>我</div>
+    </div>
+  </div>
+  <!-- P3: 设备中心页 -->
+  <div class="page dc-page hidden-right" id="pageDC">
+    <div class="status-bar"><span>18:36</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
     <div class="dc-header">
-      <span class="back">←</span>
+      <span class="back" onclick="goBack()">←</span>
       <span class="title">融合设备中心</span>
       <span class="more">⋮</span>
     </div>
-
     <div class="bubble-area">
-      <!-- 第一行：主设备 -->
       <div class="row-main">
         <div class="dev-bubble">
           <div class="b-circle">
             <span class="earbuds">🎧</span>
-            <span class="emoji" style="font-size:48px">📱</span>
+            <span style="font-size:42px">📱</span>
           </div>
           <span class="b-name">Xiaomi 17 Pro</span>
         </div>
       </div>
-
-      <!-- 设备网格：协作球 + 所有设备 -->
       <div class="device-grid">
-        <!-- 协作球（隐藏态，出现时排第一个，其他设备往后移） -->
         <div class="collab-bubble" id="collabBubble" onclick="openChat()">
           <div class="collab-circle">
             <div class="collab-glow"></div>
@@ -298,269 +386,143 @@ body {
           </div>
           <span class="collab-name" id="collabName">聚会氛围</span>
         </div>
-
-        <div class="dev-bubble">
-          <div class="b-circle"><span class="emoji">📱</span></div>
-          <span class="b-name">Xiaomi Pad 7</span>
-        </div>
-        <div class="dev-bubble">
-          <div class="b-circle"><span class="emoji">🔊</span></div>
-          <span class="b-name">Xiaomi sound</span>
-          <span class="b-sub">pro</span>
-        </div>
-        <div class="dev-bubble">
-          <div class="b-circle"><span class="emoji">📺</span></div>
-          <span class="b-name">小米电视</span>
-          <span class="b-sub">客厅</span>
-        </div>
-        <div class="dev-bubble">
-          <div class="b-circle"><span class="emoji">📷</span></div>
-          <span class="b-name">监控</span>
-          <span class="b-sub">客厅</span>
-        </div>
-        <div class="dev-bubble">
-          <div class="b-circle"><span class="emoji">❄️</span></div>
-          <span class="b-name">卧室的空调</span>
-          <span class="b-sub">卧室</span>
-        </div>
-        <div class="dev-bubble">
-          <div class="b-circle scene-circle"><span class="emoji">🏠</span></div>
-          <span class="b-name">回家</span>
-        </div>
+        <div class="dev-bubble"><div class="b-circle"><span style="font-size:26px">📱</span></div><span class="b-name">Xiaomi Pad 7</span></div>
+        <div class="dev-bubble"><div class="b-circle"><span style="font-size:26px">🔊</span></div><span class="b-name">Xiaomi sound</span><span class="b-sub">pro</span></div>
+        <div class="dev-bubble"><div class="b-circle"><span style="font-size:26px">📺</span></div><span class="b-name">小米电视</span><span class="b-sub">客厅</span></div>
+        <div class="dev-bubble"><div class="b-circle"><span style="font-size:26px">📷</span></div><span class="b-name">监控</span><span class="b-sub">客厅</span></div>
+        <div class="dev-bubble"><div class="b-circle"><span style="font-size:26px">❄️</span></div><span class="b-name">卧室的空调</span><span class="b-sub">卧室</span></div>
+        <div class="dev-bubble"><div class="b-circle scene-circle"><span style="font-size:26px">🏠</span></div><span class="b-name">回家</span></div>
       </div>
     </div>
   </div>
 
-  <!-- ===== 群聊页 ===== -->
+  <!-- P4: 群聊页 -->
   <div class="page chat-page hidden-right" id="pageChat">
-    <div class="status-bar"><span>2:38</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
+    <div class="status-bar"><span>18:38</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
     <div class="chat-header">
       <span class="chat-back" onclick="closeChat()">‹</span>
-      <div class="chat-hinfo">
-        <div class="chat-htitle">设备协作群聊</div>
-        <div class="chat-hsub" id="chatSub">3 台设备协作中</div>
-      </div>
-      <div class="chat-avatars">
-        <div class="chat-av">📱</div>
-        <div class="chat-av">💡</div>
-        <div class="chat-av">🔊</div>
-        <div class="chat-av">📺</div>
-      </div>
+      <div class="chat-hinfo"><div class="chat-htitle">设备协作群聊</div><div class="chat-hsub" id="chatSub">3 台设备协作中</div></div>
+      <div class="chat-avatars"><div class="chat-av">📱</div><div class="chat-av">💡</div><div class="chat-av">🔊</div><div class="chat-av">📺</div></div>
     </div>
-
-    <div class="chat-msgs" id="chatMsgs">
+    <div class="chat-msgs">
       <div class="msg-time">今天 18:32</div>
-
-      <div class="msg-r">
-        <span class="sn">📱 手机 · 指挥</span>
-        <div class="bl">老板想搞个聚会氛围，我来分配一下——<br>💡 客厅灯调暖光<br>🔊 音箱放点轻松的<br>📺 电视开个氛围屏保</div>
-      </div>
-
-      <div class="msg-l">
-        <div class="msg-av av-d">💡</div>
-        <div class="msg-c">
-          <span class="sn">客厅吸顶灯 <span class="msg-tag">IoT</span></span>
-          <div class="bl">收到，调暖光 60%</div>
-        </div>
-      </div>
-
-      <div class="msg-l">
-        <div class="msg-av av-w">🔊</div>
-        <div class="msg-c">
-          <span class="sn">小米音箱 <span class="msg-tag">Extension</span></span>
-          <div class="bl">好的，找个爵士歌单 🎵</div>
-        </div>
-      </div>
-
-      <div class="msg-l">
-        <div class="msg-av av-w">📺</div>
-        <div class="msg-c">
-          <span class="sn">小米电视 <span class="msg-tag">Extension+</span></span>
-          <div class="bl">收到，生成祝福卡片中</div>
-        </div>
-      </div>
-
-      <div class="msg-l">
-        <div class="msg-av av-d">💡</div>
-        <div class="msg-c">
-          <span class="sn">客厅吸顶灯</span>
-          <div class="bl bl-d">暖光已调好 💡</div>
-        </div>
-      </div>
-
-      <div class="msg-l">
-        <div class="msg-av av-w">🔊</div>
-        <div class="msg-c">
-          <span class="sn">小米音箱</span>
-          <div class="bl">找到了，「深夜爵士」歌单，要放吗？🎵</div>
-        </div>
-      </div>
-
-      <div class="msg-r">
-        <span class="sn">📱 手机</span>
-        <div class="bl">放吧 👍</div>
-      </div>
-
-      <div class="msg-l msg-done-extra" style="display:none">
-        <div class="msg-av av-d">🔊</div>
-        <div class="msg-c">
-          <span class="sn">小米音箱</span>
-          <div class="bl bl-d">开始播放「深夜爵士」🎶</div>
-        </div>
-      </div>
-
-      <div class="msg-l msg-done-extra" style="display:none">
-        <div class="msg-av av-d">📺</div>
-        <div class="msg-c">
-          <span class="sn">小米电视</span>
-          <div class="bl bl-d">氛围屏保已开 🎂</div>
-        </div>
-      </div>
-
-      <div class="msg-r msg-done-extra" style="display:none">
-        <span class="sn">📱 手机</span>
-        <div class="bl">都搞定了 🎉 灯光暖了、音乐放着、电视也准备好了！</div>
-      </div>
-
+      <div class="msg-r"><span class="sn">📱 手机 · 指挥</span><div class="bl">老板想搞个聚会氛围，我来分配一下——<br>💡 客厅灯调暖光<br>🔊 音箱放点轻松的<br>📺 电视开个氛围屏保</div></div>
+      <div class="msg-l"><div class="msg-av av-d">💡</div><div class="msg-c"><span class="sn">客厅吸顶灯 <span class="msg-tag">IoT</span></span><div class="bl">收到，调暖光 60%</div></div></div>
+      <div class="msg-l"><div class="msg-av av-w">🔊</div><div class="msg-c"><span class="sn">小米音箱 <span class="msg-tag">Extension</span></span><div class="bl">好的，找个爵士歌单 🎵</div></div></div>
+      <div class="msg-l"><div class="msg-av av-w">📺</div><div class="msg-c"><span class="sn">小米电视 <span class="msg-tag">Extension+</span></span><div class="bl">收到，生成祝福卡片中</div></div></div>
+      <div class="msg-l"><div class="msg-av av-d">💡</div><div class="msg-c"><span class="sn">客厅吸顶灯</span><div class="bl bl-d">暖光已调好 💡</div></div></div>
+      <div class="msg-l"><div class="msg-av av-w">🔊</div><div class="msg-c"><span class="sn">小米音箱</span><div class="bl">找到了，「深夜爵士」歌单，要放吗？🎵</div></div></div>
+      <div class="msg-r"><span class="sn">📱 手机</span><div class="bl">放吧 👍</div></div>
+      <div class="msg-l msg-done-extra" style="display:none"><div class="msg-av av-d">🔊</div><div class="msg-c"><span class="sn">小米音箱</span><div class="bl bl-d">开始播放「深夜爵士」🎶</div></div></div>
+      <div class="msg-l msg-done-extra" style="display:none"><div class="msg-av av-d">📺</div><div class="msg-c"><span class="sn">小米电视</span><div class="bl bl-d">氛围屏保已开 🎂</div></div></div>
+      <div class="msg-r msg-done-extra" style="display:none"><span class="sn">📱 手机</span><div class="bl">都搞定了 🎉 灯光暖了、音乐放着、电视也准备好了！</div></div>
       <div class="msg-sys msg-done-extra" style="display:none">— 协作完成 · 3 台设备参与 —</div>
     </div>
-
-    <div class="chat-footer">
-      <span>🔒 群聊为只读，设备协作过程自动记录</span>
-    </div>
+    <div class="chat-footer"><span>🔒 群聊为只读，设备协作过程自动记录</span></div>
   </div>
 </div>
-
-<style>
-/* ========== 群聊页样式 ========== */
-.chat-page {
-  background: linear-gradient(180deg, #0c1829, #080e1e);
-  display: flex;
-  flex-direction: column;
-}
-.chat-header {
-  display: flex; align-items: center; gap: 12px;
-  padding: 0 20px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.chat-back {
-  font-size: 22px; color: rgba(255,255,255,0.6); cursor: pointer; padding: 4px;
-}
-.chat-hinfo { flex: 1; }
-.chat-htitle { font-size: 16px; font-weight: 600; }
-.chat-hsub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
-.chat-avatars { display: flex; }
-.chat-av {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  border: 2px solid #0c1829;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; margin-left: -6px;
-}
-.chat-av:first-child { margin-left: 0; }
-.chat-msgs {
-  flex: 1; overflow-y: auto; padding: 16px 16px 20px;
-  display: flex; flex-direction: column; gap: 14px;
-  -webkit-overflow-scrolling: touch;
-}
-.msg-time { text-align: center; font-size: 10px; color: rgba(255,255,255,0.2); padding: 4px 0; }
-.msg-r { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.msg-r .sn { font-size: 10px; color: rgba(0,150,255,0.6); font-weight: 500; margin-right: 4px; }
-.msg-r .bl {
-  background: linear-gradient(135deg, rgba(0,122,255,0.15), rgba(0,122,255,0.08));
-  border: 1px solid rgba(0,122,255,0.2);
-  border-radius: 16px 16px 4px 16px;
-  padding: 10px 14px; font-size: 13px; line-height: 1.6;
-  max-width: 280px; color: rgba(180,220,255,0.9);
-}
-.msg-l { display: flex; gap: 8px; align-items: flex-start; }
-.msg-av {
-  width: 32px; height: 32px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-.msg-av.av-d { background: rgba(0,230,118,0.08); border-color: rgba(0,230,118,0.2); }
-.msg-av.av-w { background: rgba(255,215,64,0.08); border-color: rgba(255,215,64,0.15); }
-.msg-c { display: flex; flex-direction: column; gap: 3px; }
-.msg-c .sn {
-  font-size: 10px; color: rgba(255,255,255,0.35); font-weight: 500;
-  display: flex; align-items: center; gap: 6px;
-}
-.msg-tag { font-size: 9px; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
-.msg-c .bl {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 16px 16px 16px 4px;
-  padding: 10px 14px; font-size: 13px; line-height: 1.5;
-  max-width: 260px; color: rgba(255,255,255,0.8);
-}
-.msg-c .bl.bl-d {
-  background: rgba(0,230,118,0.06);
-  border-color: rgba(0,230,118,0.12);
-  color: rgba(200,255,220,0.9);
-}
-.msg-sys { text-align: center; font-size: 11px; color: rgba(255,255,255,0.25); padding: 2px 0; }
-.chat-footer {
-  padding: 14px 20px 28px; text-align: center;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  background: rgba(8,14,30,0.95); flex-shrink: 0;
-}
-.chat-footer span { font-size: 12px; color: rgba(255,255,255,0.25); }
-</style>
-
 <script>
-const pageDC = document.getElementById('pageDC');
-const pageChat = document.getElementById('pageChat');
-const collabBubble = document.getElementById('collabBubble');
-const collabName = document.getElementById('collabName');
-const chatSub = document.getElementById('chatSub');
+const pages = { xiaoai: 'pageXiaoai', any: 'pageAny', dc: 'pageDC', chat: 'pageChat' };
+let currentPage = 'xiaoai';
+let isDone = false;
 
-let currentState = 'normal';
+function hideAll() {
+  Object.values(pages).forEach(id => {
+    document.getElementById(id).classList.add('hidden-right');
+    document.getElementById(id).classList.remove('hidden-left');
+  });
+}
 
-function showState(state) {
-  currentState = state;
-  closeChat();
+function showPage(name) {
+  hideAll();
+  const el = document.getElementById(pages[name]);
+  el.classList.remove('hidden-right', 'hidden-left');
+  currentPage = name;
+}
 
+function go(step) {
+  // Update nav buttons
+  const steps = ['xiaoai','card','island','dc','done'];
+  const idx = steps.indexOf(step);
   document.querySelectorAll('.demo-nav button').forEach((btn, i) => {
-    btn.classList.toggle('active', ['normal','collab','done'][i] === state);
+    btn.classList.toggle('active', i === idx);
   });
 
-  if (state === 'normal') {
-    collabBubble.classList.remove('show', 'done');
-    hideDoneMessages();
+  if (step === 'xiaoai') {
+    isDone = false;
+    showPage('xiaoai');
+    document.getElementById('taskCard').style.display = 'none';
+    document.getElementById('superIsland').classList.remove('show', 'si-done');
+    document.getElementById('collabBubble').classList.remove('show', 'done');
+    hideDone();
   }
-  else if (state === 'collab') {
-    collabBubble.classList.add('show');
-    collabBubble.classList.remove('done');
-    collabName.textContent = '聚会氛围';
-    chatSub.textContent = '3 台设备协作中';
-    hideDoneMessages();
+  else if (step === 'card') {
+    isDone = false;
+    showPage('xiaoai');
+    document.getElementById('taskCard').style.display = 'block';
+    document.getElementById('taskCard').classList.remove('done-card');
+    document.getElementById('taskCard').querySelector('.task-card-status').innerHTML = '<span class="dot"></span> 3 台设备协作中';
+    hideDone();
   }
-  else if (state === 'done') {
-    collabBubble.classList.add('show', 'done');
-    collabName.textContent = '聚会氛围 ✓';
-    chatSub.textContent = '3 台设备 · 协作完成';
-    showDoneMessages();
+  else if (step === 'island') {
+    isDone = false;
+    showPage('any');
+    const si = document.getElementById('superIsland');
+    si.classList.add('show');
+    si.classList.remove('si-done');
+    document.getElementById('siText').textContent = '聚会氛围 · 3台协作中';
+    document.getElementById('siStatus').style.display = '';
+    document.getElementById('collabBubble').classList.add('show');
+    document.getElementById('collabBubble').classList.remove('done');
+    document.getElementById('collabName').textContent = '聚会氛围';
+    document.getElementById('chatSub').textContent = '3 台设备协作中';
+    hideDone();
+  }
+  else if (step === 'dc') {
+    showPage('dc');
+    document.getElementById('collabBubble').classList.add('show');
+    if (isDone) {
+      document.getElementById('collabBubble').classList.add('done');
+      document.getElementById('collabName').textContent = '聚会氛围 ✓';
+      document.getElementById('chatSub').textContent = '3 台设备 · 协作完成';
+    } else {
+      document.getElementById('collabBubble').classList.remove('done');
+      document.getElementById('collabName').textContent = '聚会氛围';
+      document.getElementById('chatSub').textContent = '3 台设备协作中';
+    }
+  }
+  else if (step === 'done') {
+    isDone = true;
+    showPage('dc');
+    document.getElementById('collabBubble').classList.add('show', 'done');
+    document.getElementById('collabName').textContent = '聚会氛围 ✓';
+    document.getElementById('chatSub').textContent = '3 台设备 · 协作完成';
+    showDone();
+    // Update card and island for done state
+    document.getElementById('taskCard').style.display = 'block';
+    document.getElementById('taskCard').classList.add('done-card');
+    document.getElementById('taskCard').querySelector('.task-card-status').innerHTML = '<span class="dot"></span> 协作完成';
+    const si = document.getElementById('superIsland');
+    si.classList.add('show', 'si-done');
+    document.getElementById('siText').textContent = '聚会氛围 · 已完成 ✓';
   }
 }
 
 function openChat() {
-  pageDC.classList.add('hidden-left');
-  pageChat.classList.remove('hidden-right');
+  document.getElementById('pageDC').classList.add('hidden-left');
+  document.getElementById('pageChat').classList.remove('hidden-right');
+  currentPage = 'chat';
 }
-
 function closeChat() {
-  pageChat.classList.add('hidden-right');
-  pageDC.classList.remove('hidden-left');
+  document.getElementById('pageChat').classList.add('hidden-right');
+  document.getElementById('pageDC').classList.remove('hidden-left', 'hidden-right');
+  currentPage = 'dc';
 }
-
-function hideDoneMessages() {
-  document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = 'none');
+function goBack() {
+  showPage('any');
 }
-function showDoneMessages() {
-  document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = '');
-}
+function hideDone() { document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = 'none'); }
+function showDone() { document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = ''); }
 </script>
 </body>
 </html>
