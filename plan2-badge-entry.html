@@ -31,19 +31,14 @@ body {
   border: 2px solid rgba(255,255,255,0.08);
   box-shadow: 0 0 40px rgba(0,0,0,0.4); flex-shrink: 0; position: relative;
 }
-.page {
-  position: absolute; inset: 0;
-  transition: transform 0.45s cubic-bezier(0.32,0.72,0,1), opacity 0.45s;
-}
+.page { position: absolute; inset: 0; transition: transform 0.45s cubic-bezier(0.32,0.72,0,1), opacity 0.45s; }
 .page.hidden-right { transform: translateX(100%); opacity: 0; pointer-events: none; }
 .page.hidden-left  { transform: translateX(-30%); opacity: 0.5; pointer-events: none; }
-.status-bar {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 24px 0; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7);
-}
+.status-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px 0; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7); }
+@keyframes dot-blink { 0%,100%{opacity:1}50%{opacity:0.3} }
 </style>
 <style>
-/* 小爱对话页 */
+/* 小爱对话 */
 .xiaoai-page { background: linear-gradient(180deg, #0a0e1a, #0d1525); display: flex; flex-direction: column; }
 .xiaoai-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 20px 12px; }
 .xiaoai-header .back { font-size: 20px; color: rgba(255,255,255,0.5); }
@@ -55,85 +50,21 @@ body {
 .xa-ai { display: flex; gap: 8px; align-items: flex-start; }
 .xa-ai-av { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #4a6cf7, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
 .xa-ai .xa-bl { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px 16px 16px 4px; padding: 10px 14px; font-size: 13px; line-height: 1.5; max-width: 270px; color: rgba(255,255,255,0.85); }
-.task-card { margin: 4px 0 4px 40px; background: linear-gradient(135deg, rgba(100,60,200,0.12), rgba(60,120,255,0.08)); border: 1px solid rgba(130,100,255,0.2); border-radius: 14px; padding: 12px 14px; max-width: 260px; cursor: pointer; transition: transform 0.2s; }
+.task-card { margin: 4px 0 4px 40px; background: linear-gradient(135deg, rgba(100,60,200,0.12), rgba(60,120,255,0.08)); border: 1px solid rgba(130,100,255,0.2); border-radius: 14px; padding: 12px 14px; max-width: 260px; cursor: pointer; transition: transform 0.2s; display: none; }
 .task-card:active { transform: scale(0.97); }
+.task-card.show { display: block; }
 .task-card-title { font-size: 12px; font-weight: 600; color: rgba(200,180,255,0.9); margin-bottom: 6px; }
 .task-card-info { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.5; }
 .task-card-status { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; padding: 3px 10px; border-radius: 10px; background: rgba(130,100,255,0.15); font-size: 10px; color: rgba(180,160,255,0.8); }
 .task-card-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; animation: dot-blink 1.5s infinite; }
-.task-card.done-card { border-color: rgba(0,230,118,0.2); background: linear-gradient(135deg, rgba(0,200,100,0.08), rgba(0,180,80,0.05)); }
-.task-card.done-card .task-card-title { color: rgba(180,255,210,0.9); }
-.task-card.done-card .task-card-status { background: rgba(0,200,100,0.15); color: rgba(150,255,200,0.8); }
-.task-card.done-card .task-card-status .dot { background: #34d399; animation: none; }
-@keyframes dot-blink { 0%,100%{opacity:1}50%{opacity:0.3} }
 .xiaoai-input { padding: 12px 16px 28px; display: flex; gap: 10px; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10,14,26,0.95); }
 .xiaoai-input input { flex: 1; padding: 10px 14px; border-radius: 20px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: #fff; font-size: 14px; outline: none; }
 .xiaoai-input .send-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(0,122,255,0.3); border: none; color: rgba(255,255,255,0.6); font-size: 16px; cursor: pointer; }
-
-/* 超级岛 */
-.super-island { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 100; background: rgba(0,0,0,0.85); border-radius: 22px; padding: 6px 14px 6px 10px; display: flex; align-items: center; gap: 8px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34,1.56,0.64,1); transform: translateX(-50%) scale(0.8); box-shadow: 0 2px 16px rgba(0,0,0,0.5); white-space: nowrap; }
-.super-island.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) scale(1); }
-.si-icons { display: flex; }
-.si-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-left: -4px; }
-.si-icon:first-child { margin-left: 0; }
-.si-icon.si-active { background: rgba(130,100,255,0.3); }
-.si-text { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.8); }
-.si-status { width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; animation: dot-blink 1.5s infinite; }
-.super-island.si-done .si-status { background: #34d399; animation: none; }
-.super-island.si-done .si-icon.si-active { background: rgba(0,200,100,0.3); }
-
-/* 任意界面 */
-.any-page { background: linear-gradient(180deg, #1a1a2e, #16213e); display: flex; flex-direction: column; }
-.any-header { padding: 8px 20px 12px; display: flex; align-items: center; justify-content: space-between; }
-.any-header .title { font-size: 16px; font-weight: 600; }
-.any-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: rgba(255,255,255,0.3); }
-.any-content .mock-icon { font-size: 48px; opacity: 0.4; }
-.any-content .mock-text { font-size: 13px; }
-.any-bottom { padding: 16px 20px 28px; display: flex; justify-content: space-around; border-top: 1px solid rgba(255,255,255,0.05); }
-.any-tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: rgba(255,255,255,0.3); }
-.any-tab .tab-icon { font-size: 20px; }
-</style>
-<style>
-/* 设备中心 */
-.dc-page { background: linear-gradient(170deg, #1a1040 0%, #1e2a5a 25%, #2a3a6a 45%, #3a4a7a 65%, #4a5a8a 85%, #3a4a7a 100%); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.dc-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px 8px; }
-.dc-header .back { font-size: 22px; color: rgba(255,255,255,0.6); cursor: pointer; }
-.dc-header .title { font-size: 17px; font-weight: 600; }
-.dc-header .more { font-size: 18px; color: rgba(255,255,255,0.4); }
-.bubble-area { position: relative; width: 100%; padding-bottom: 20px; }
-.dev-bubble { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s; }
-.dev-bubble:active { transform: scale(0.95); }
-.b-circle { border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; background: rgba(180,200,230,0.08); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.b-name { font-size: 12px; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; }
-.b-sub { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: -4px; text-align: center; }
-.row-main { display: flex; justify-content: center; padding: 12px 0 8px; position: relative; }
-.row-main .b-circle { width: 120px; height: 120px; }
-.earbuds { position: absolute; top: -2px; right: -2px; width: 30px; height: 30px; border-radius: 50%; background: rgba(50,120,255,0.35); border: 1.5px solid rgba(100,160,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 13px; z-index: 3; }
-
-/* MiClaw Badge */
-.miclaw-badge { position: absolute; bottom: -2px; left: -2px; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, rgba(130,80,220,0.5), rgba(80,140,255,0.4)); border: 2px solid rgba(160,120,255,0.5); display: flex; align-items: center; justify-content: center; font-size: 14px; z-index: 3; cursor: pointer; opacity: 0; transform: scale(0); transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 0 12px rgba(130,80,220,0.3); }
-.miclaw-badge.show { opacity: 1; transform: scale(1); animation: badge-breathe 2.5s ease-in-out infinite; }
-@keyframes badge-breathe { 0%,100%{box-shadow:0 0 10px rgba(130,80,220,0.25)}50%{box-shadow:0 0 22px rgba(130,80,220,0.5)} }
-.miclaw-badge.done-badge { background: linear-gradient(135deg, rgba(0,200,100,0.5), rgba(0,180,80,0.4)); border-color: rgba(0,230,118,0.5); animation: badge-breathe-done 2.5s ease-in-out infinite; }
-@keyframes badge-breathe-done { 0%,100%{box-shadow:0 0 10px rgba(0,200,100,0.25)}50%{box-shadow:0 0 22px rgba(0,200,100,0.5)} }
-.badge-dot { position: absolute; top: -1px; right: -1px; width: 7px; height: 7px; border-radius: 50%; background: #ff5252; border: 1.5px solid rgba(20,10,40,0.8); opacity: 0; transition: opacity 0.3s; }
-.badge-dot.show { opacity: 1; animation: dot-blink 1.5s ease-in-out infinite; }
-.miclaw-badge:active { transform: scale(0.85) !important; }
-
-.row-devices { display: flex; justify-content: space-around; padding: 8px 24px; }
-.row-devices .b-circle { width: 85px; height: 85px; }
-.row-small { display: flex; justify-content: space-around; padding: 8px 24px; }
-.row-small .b-circle { width: 78px; height: 78px; }
-.row-bottom { display: flex; justify-content: space-around; padding: 8px 24px; }
-.row-bottom .b-circle { width: 78px; height: 78px; }
-.scene-circle { background: rgba(255,180,0,0.1) !important; border-color: rgba(255,180,0,0.2) !important; }
-
-/* 群聊页 */
+/* 群聊 */
 .chat-page { background: linear-gradient(180deg, #0c1829, #080e1e); display: flex; flex-direction: column; }
 .chat-header { display: flex; align-items: center; gap: 12px; padding: 0 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .chat-back { font-size: 22px; color: rgba(255,255,255,0.6); cursor: pointer; padding: 4px; }
-.chat-hinfo { flex: 1; }
-.chat-htitle { font-size: 16px; font-weight: 600; }
+.chat-hinfo { flex: 1; } .chat-htitle { font-size: 16px; font-weight: 600; }
 .chat-hsub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
 .chat-avatars { display: flex; }
 .chat-av { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 2px solid #0c1829; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-left: -6px; }
@@ -156,14 +87,66 @@ body {
 .chat-footer { padding: 14px 20px 28px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(8,14,30,0.95); flex-shrink: 0; }
 .chat-footer span { font-size: 12px; color: rgba(255,255,255,0.25); }
 </style>
+<style>
+/* 桌面+超级岛 */
+.desktop-page { background: linear-gradient(180deg, #1a1a2e, #16213e); display: flex; flex-direction: column; }
+.super-island { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 100; background: rgba(0,0,0,0.85); border-radius: 22px; padding: 6px 14px 6px 8px; display: none; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 16px rgba(0,0,0,0.5); white-space: nowrap; animation: si-pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+.super-island.show { display: flex; }
+@keyframes si-pop { from { transform: translateX(-50%) scale(0.8); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+.si-miclaw { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.si-text { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.8); }
+.si-status { width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; animation: dot-blink 1.5s infinite; }
+.desktop-grid { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 0; padding: 60px 24px 20px; align-content: start; }
+.app-icon { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.app-icon-circle { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.app-icon-label { font-size: 10px; color: rgba(255,255,255,0.6); }
+.app-wechat { background: linear-gradient(135deg, #07c160, #06ad56); }
+.app-photos { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+.app-settings { background: linear-gradient(135deg, #636e72, #2d3436); }
+.app-camera { background: linear-gradient(135deg, #fdcb6e, #e17055); }
+.app-music { background: linear-gradient(135deg, #e84393, #fd79a8); }
+.app-browser { background: linear-gradient(135deg, #0984e3, #74b9ff); }
+.app-files { background: linear-gradient(135deg, #00b894, #55efc4); }
+.app-clock { background: linear-gradient(135deg, #2d3436, #636e72); }
+.desktop-dock { padding: 12px 32px 28px; display: flex; justify-content: space-around; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05); }
+.dock-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.08); }
+
+/* 设备中心 */
+.dc-page { background: linear-gradient(170deg, #1a1040 0%, #1e2a5a 25%, #2a3a6a 45%, #3a4a7a 65%, #4a5a8a 85%, #3a4a7a 100%); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.dc-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px 8px; }
+.dc-header .back { font-size: 22px; color: rgba(255,255,255,0.6); cursor: pointer; }
+.dc-header .title { font-size: 17px; font-weight: 600; }
+.dc-header .more { font-size: 18px; color: rgba(255,255,255,0.4); }
+.bubble-area { position: relative; width: 100%; padding-bottom: 20px; }
+.dev-bubble { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s; }
+.dev-bubble:active { transform: scale(0.95); }
+.b-circle { border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; background: rgba(180,200,230,0.08); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.b-name { font-size: 12px; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; }
+.b-sub { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: -4px; text-align: center; }
+.row-main { display: flex; justify-content: center; padding: 12px 0 8px; position: relative; }
+.row-main .b-circle { width: 120px; height: 120px; }
+.earbuds { position: absolute; top: -2px; right: -2px; width: 30px; height: 30px; border-radius: 50%; background: rgba(50,120,255,0.35); border: 1.5px solid rgba(100,160,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 13px; z-index: 3; }
+/* MiClaw Badge */
+.miclaw-badge { position: absolute; bottom: -2px; left: -2px; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, rgba(130,80,220,0.5), rgba(80,140,255,0.4)); border: 2px solid rgba(160,120,255,0.5); display: flex; align-items: center; justify-content: center; z-index: 3; cursor: pointer; opacity: 0; transform: scale(0); transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 0 12px rgba(130,80,220,0.3); }
+.miclaw-badge.show { opacity: 1; transform: scale(1); animation: badge-breathe 2.5s ease-in-out infinite; }
+@keyframes badge-breathe { 0%,100%{box-shadow:0 0 10px rgba(130,80,220,0.25)}50%{box-shadow:0 0 22px rgba(130,80,220,0.5)} }
+.miclaw-badge:active { transform: scale(0.85) !important; }
+.badge-dot { position: absolute; top: -1px; right: -1px; width: 7px; height: 7px; border-radius: 50%; background: #ff5252; border: 1.5px solid rgba(20,10,40,0.8); animation: dot-blink 1.5s ease-in-out infinite; }
+.row-devices { display: flex; justify-content: space-around; padding: 8px 24px; }
+.row-devices .b-circle { width: 85px; height: 85px; }
+.row-small { display: flex; justify-content: space-around; padding: 8px 24px; }
+.row-small .b-circle { width: 78px; height: 78px; }
+.row-bottom { display: flex; justify-content: space-around; padding: 8px 24px; }
+.row-bottom .b-circle { width: 78px; height: 78px; }
+.scene-circle { background: rgba(255,180,0,0.1) !important; border-color: rgba(255,180,0,0.2) !important; }
+</style>
 </head>
 <body>
 <div class="demo-nav">
   <button class="active" onclick="go('xiaoai')">① 小爱对话</button><span>→</span>
-  <button onclick="go('card')">② 引流卡片</button><span>→</span>
-  <button onclick="go('island')">③ 超级岛</button><span>→</span>
-  <button onclick="go('dc')">④ 设备中心</button><span>→</span>
-  <button onclick="go('done')">⑤ 完成</button>
+  <button onclick="go('chat')">② 群聊</button><span>→</span>
+  <button onclick="go('desktop')">③ 桌面(超级岛)</button><span>→</span>
+  <button onclick="go('dc')">④ 设备中心</button>
 </div>
 <div class="phone">
   <!-- 小爱对话 -->
@@ -173,7 +156,7 @@ body {
     <div class="xiaoai-msgs">
       <div class="xa-user"><div class="xa-bl">帮我搞个聚会氛围，客厅灯调暖光，音箱放点轻松的爵士，电视开个氛围屏保</div></div>
       <div class="xa-ai"><div class="xa-ai-av">🤖</div><div class="xa-bl">好的，我来帮你安排 🎉<br><br>正在协调 3 台设备：<br>💡 客厅吸顶灯 → 暖光<br>🔊 小米音箱 → 爵士歌单<br>📺 小米电视 → 氛围屏保<br><br>已发起设备协作，你可以在融合设备中心随时查看进度 👇</div></div>
-      <div class="task-card" id="taskCard" onclick="go('dc')" style="display:none">
+      <div class="task-card" id="taskCard" onclick="go('chat')">
         <div class="task-card-title">🎉 聚会氛围</div>
         <div class="task-card-info">💡 客厅灯 · 🔊 音箱 · 📺 电视</div>
         <div class="task-card-status"><span class="dot"></span> 3 台设备协作中</div>
@@ -182,40 +165,62 @@ body {
     <div class="xiaoai-input"><input type="text" placeholder="跟小爱说点什么..." disabled><button class="send-btn">↑</button></div>
   </div>
 
-  <!-- 任意界面 -->
-  <div class="page any-page hidden-right" id="pageAny">
+  <!-- 群聊 -->
+  <div class="page chat-page hidden-right" id="pageChat">
+    <div class="status-bar"><span>18:32</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
+    <div class="chat-header">
+      <span class="chat-back" onclick="go('xiaoai')">‹</span>
+      <div class="chat-hinfo"><div class="chat-htitle">设备协作群聊</div><div class="chat-hsub">3 台设备协作中</div></div>
+      <div class="chat-avatars"><div class="chat-av">📱</div><div class="chat-av">💡</div><div class="chat-av">🔊</div><div class="chat-av">📺</div></div>
+    </div>
+    <div class="chat-msgs">
+      <div class="msg-time">今天 18:32</div>
+      <div class="msg-r"><span class="sn">📱 手机 · 指挥</span><div class="bl">老板想搞个聚会氛围，我来分配一下——<br>💡 客厅灯调暖光<br>🔊 音箱放点轻松的<br>📺 电视开个氛围屏保</div></div>
+      <div class="msg-l"><div class="msg-av av-d">💡</div><div class="msg-c"><span class="sn">客厅吸顶灯 <span class="msg-tag">IoT</span></span><div class="bl">收到，调暖光 60%</div></div></div>
+      <div class="msg-l"><div class="msg-av av-w">🔊</div><div class="msg-c"><span class="sn">小米音箱 <span class="msg-tag">Extension</span></span><div class="bl">好的，找个爵士歌单 🎵</div></div></div>
+      <div class="msg-l"><div class="msg-av av-w">📺</div><div class="msg-c"><span class="sn">小米电视 <span class="msg-tag">Extension+</span></span><div class="bl">收到，生成祝福卡片中</div></div></div>
+      <div class="msg-l"><div class="msg-av av-d">💡</div><div class="msg-c"><span class="sn">客厅吸顶灯</span><div class="bl bl-d">暖光已调好 💡</div></div></div>
+      <div class="msg-l"><div class="msg-av av-w">🔊</div><div class="msg-c"><span class="sn">小米音箱</span><div class="bl">找到了，「深夜爵士」歌单，要放吗？🎵</div></div></div>
+      <div class="msg-r"><span class="sn">📱 手机</span><div class="bl">放吧 👍</div></div>
+    </div>
+    <div class="chat-footer"><span>🔒 群聊为只读，设备协作过程自动记录</span></div>
+  </div>
+
+  <!-- 桌面(超级岛) -->
+  <div class="page desktop-page hidden-right" id="pageDesktop">
     <div class="super-island" id="superIsland" onclick="go('dc')">
-      <div class="si-icons"><span class="si-icon si-active">💡</span><span class="si-icon">🔊</span><span class="si-icon">📺</span></div>
-      <span class="si-text" id="siText">聚会氛围 · 3台协作中</span>
-      <span class="si-status" id="siStatus"></span>
+      <img class="si-miclaw" src="miclaw-icon.png" alt="MiClaw">
+      <span class="si-text">聚会氛围 · 执行中</span>
+      <span class="si-status"></span>
     </div>
     <div class="status-bar"><span>18:35</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
-    <div class="any-header"><span class="title" style="margin-left:auto;margin-right:auto;">微信</span></div>
-    <div class="any-content">
-      <span class="mock-icon">💬</span>
-      <span class="mock-text">用户正在刷微信...</span>
-      <span class="mock-text" style="font-size:11px;margin-top:8px;">👆 点击顶部超级岛查看协作状态</span>
+    <div class="desktop-grid">
+      <div class="app-icon"><div class="app-icon-circle app-wechat">💬</div><span class="app-icon-label">微信</span></div>
+      <div class="app-icon"><div class="app-icon-circle app-photos">🖼</div><span class="app-icon-label">相册</span></div>
+      <div class="app-icon"><div class="app-icon-circle app-settings">⚙️</div><span class="app-icon-label">设置</span></div>
+      <div class="app-icon"><div class="app-icon-circle app-camera">📷</div><span class="app-icon-label">相机</span></div>
+      <div class="app-icon"><div class="app-icon-circle app-music">🎵</div><span class="app-icon-label">音乐</span></div>
+      <div class="app-icon"><div class="app-icon-circle app-browser">🌐</div><span class="app-icon-label">浏览器</span></div>
+      <div class="app-icon"><div class="app-icon-circle app-files">📁</div><span class="app-icon-label">文件管理</span></div>
+      <div class="app-icon"><div class="app-icon-circle app-clock">🕐</div><span class="app-icon-label">时钟</span></div>
     </div>
-    <div class="any-bottom">
-      <div class="any-tab"><span class="tab-icon">💬</span>微信</div>
-      <div class="any-tab"><span class="tab-icon">👤</span>通讯录</div>
-      <div class="any-tab"><span class="tab-icon">🔍</span>发现</div>
-      <div class="any-tab"><span class="tab-icon">👤</span>我</div>
+    <div class="desktop-dock">
+      <div class="dock-icon">📞</div><div class="dock-icon">💬</div><div class="dock-icon">🧭</div><div class="dock-icon">📷</div>
     </div>
   </div>
 
   <!-- 设备中心 -->
   <div class="page dc-page hidden-right" id="pageDC">
     <div class="status-bar"><span>18:36</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
-    <div class="dc-header"><span class="back" onclick="goBack()">←</span><span class="title">融合设备中心</span><span class="more">⋮</span></div>
+    <div class="dc-header"><span class="back" onclick="go('desktop')">←</span><span class="title">融合设备中心</span><span class="more">⋮</span></div>
     <div class="bubble-area">
       <div class="row-main">
         <div class="dev-bubble">
           <div class="b-circle">
             <span class="earbuds">🎧</span>
-            <div class="miclaw-badge" id="miclawBadge" onclick="event.stopPropagation(); openChat();">
+            <div class="miclaw-badge" id="miclawBadge" onclick="event.stopPropagation(); go('chat');">
               <img src="miclaw-icon.png" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">
-              <span class="badge-dot" id="badgeDot"></span>
+              <span class="badge-dot"></span>
             </div>
             <span style="font-size:42px">📱</span>
           </div>
@@ -236,119 +241,59 @@ body {
       </div>
     </div>
   </div>
-  <!-- 群聊页 -->
-  <div class="page chat-page hidden-right" id="pageChat">
-    <div class="status-bar"><span>18:38</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
-    <div class="chat-header">
-      <span class="chat-back" onclick="closeChat()">‹</span>
-      <div class="chat-hinfo"><div class="chat-htitle">设备协作群聊</div><div class="chat-hsub" id="chatSub">3 台设备协作中</div></div>
-      <div class="chat-avatars"><div class="chat-av">📱</div><div class="chat-av">💡</div><div class="chat-av">🔊</div><div class="chat-av">📺</div></div>
-    </div>
-    <div class="chat-msgs">
-      <div class="msg-time">今天 18:32</div>
-      <div class="msg-r"><span class="sn">📱 手机 · 指挥</span><div class="bl">老板想搞个聚会氛围，我来分配一下——<br>💡 客厅灯调暖光<br>🔊 音箱放点轻松的<br>📺 电视开个氛围屏保</div></div>
-      <div class="msg-l"><div class="msg-av av-d">💡</div><div class="msg-c"><span class="sn">客厅吸顶灯 <span class="msg-tag">IoT</span></span><div class="bl">收到，调暖光 60%</div></div></div>
-      <div class="msg-l"><div class="msg-av av-w">🔊</div><div class="msg-c"><span class="sn">小米音箱 <span class="msg-tag">Extension</span></span><div class="bl">好的，找个爵士歌单 🎵</div></div></div>
-      <div class="msg-l"><div class="msg-av av-w">📺</div><div class="msg-c"><span class="sn">小米电视 <span class="msg-tag">Extension+</span></span><div class="bl">收到，生成祝福卡片中</div></div></div>
-      <div class="msg-l"><div class="msg-av av-d">💡</div><div class="msg-c"><span class="sn">客厅吸顶灯</span><div class="bl bl-d">暖光已调好 💡</div></div></div>
-      <div class="msg-l"><div class="msg-av av-w">🔊</div><div class="msg-c"><span class="sn">小米音箱</span><div class="bl">找到了，「深夜爵士」歌单，要放吗？🎵</div></div></div>
-      <div class="msg-r"><span class="sn">📱 手机</span><div class="bl">放吧 👍</div></div>
-      <div class="msg-l msg-done-extra" style="display:none"><div class="msg-av av-d">🔊</div><div class="msg-c"><span class="sn">小米音箱</span><div class="bl bl-d">开始播放「深夜爵士」🎶</div></div></div>
-      <div class="msg-l msg-done-extra" style="display:none"><div class="msg-av av-d">📺</div><div class="msg-c"><span class="sn">小米电视</span><div class="bl bl-d">氛围屏保已开 🎂</div></div></div>
-      <div class="msg-r msg-done-extra" style="display:none"><span class="sn">📱 手机</span><div class="bl">都搞定了 🎉 灯光暖了、音乐放着、电视也准备好了！</div></div>
-      <div class="msg-sys msg-done-extra" style="display:none">— 协作完成 · 3 台设备参与 —</div>
-    </div>
-    <div class="chat-footer"><span>🔒 群聊为只读，设备协作过程自动记录</span></div>
-  </div>
 </div>
-
 <script>
-const pages = { xiaoai: 'pageXiaoai', any: 'pageAny', dc: 'pageDC', chat: 'pageChat' };
-let isDone = false;
+const pages = { xiaoai:'pageXiaoai', chat:'pageChat', desktop:'pageDesktop', dc:'pageDC' };
+const stepOrder = ['xiaoai','chat','desktop','dc'];
+let currentPage = 'xiaoai';
 
 function hideAll() {
   Object.values(pages).forEach(id => {
-    document.getElementById(id).classList.add('hidden-right');
-    document.getElementById(id).classList.remove('hidden-left');
+    const el = document.getElementById(id);
+    el.classList.add('hidden-right');
+    el.classList.remove('hidden-left');
   });
 }
+
 function showPage(name) {
-  hideAll();
-  document.getElementById(pages[name]).classList.remove('hidden-right', 'hidden-left');
+  const oldIdx = stepOrder.indexOf(currentPage);
+  const newIdx = stepOrder.indexOf(name);
+  Object.values(pages).forEach(id => {
+    const el = document.getElementById(id);
+    if (id === pages[name]) {
+      el.classList.remove('hidden-right', 'hidden-left');
+    } else if (newIdx >= oldIdx) {
+      el.classList.add('hidden-left'); el.classList.remove('hidden-right');
+    } else {
+      el.classList.add('hidden-right'); el.classList.remove('hidden-left');
+    }
+  });
+  currentPage = name;
 }
 
 function go(step) {
-  const steps = ['xiaoai','card','island','dc','done'];
-  const idx = steps.indexOf(step);
+  const idx = stepOrder.indexOf(step);
   document.querySelectorAll('.demo-nav button').forEach((btn, i) => btn.classList.toggle('active', i === idx));
 
-  const badge = document.getElementById('miclawBadge');
-  const dot = document.getElementById('badgeDot');
-  const si = document.getElementById('superIsland');
+  document.getElementById('taskCard').classList.remove('show');
+  document.getElementById('superIsland').classList.remove('show');
+  document.getElementById('miclawBadge').classList.remove('show');
 
   if (step === 'xiaoai') {
-    isDone = false;
     showPage('xiaoai');
-    document.getElementById('taskCard').style.display = 'none';
-    si.classList.remove('show', 'si-done');
-    badge.classList.remove('show', 'done-badge');
-    dot.classList.remove('show');
-    hideDone();
-  }
-  else if (step === 'card') {
-    isDone = false;
-    showPage('xiaoai');
-    document.getElementById('taskCard').style.display = 'block';
-    document.getElementById('taskCard').classList.remove('done-card');
-    document.getElementById('taskCard').querySelector('.task-card-status').innerHTML = '<span class="dot"></span> 3 台设备协作中';
-    hideDone();
-  }
-  else if (step === 'island') {
-    isDone = false;
-    showPage('any');
-    si.classList.add('show'); si.classList.remove('si-done');
-    document.getElementById('siText').textContent = '聚会氛围 · 3台协作中';
-    badge.classList.add('show'); badge.classList.remove('done-badge');
-    dot.classList.add('show');
-    document.getElementById('chatSub').textContent = '3 台设备协作中';
-    hideDone();
-  }
-  else if (step === 'dc') {
+    document.getElementById('taskCard').classList.add('show');
+  } else if (step === 'chat') {
+    showPage('chat');
+  } else if (step === 'desktop') {
+    showPage('desktop');
+    document.getElementById('superIsland').classList.add('show');
+  } else if (step === 'dc') {
     showPage('dc');
-    badge.classList.add('show');
-    if (isDone) {
-      badge.classList.add('done-badge'); dot.classList.remove('show');
-      document.getElementById('chatSub').textContent = '3 台设备 · 协作完成';
-    } else {
-      badge.classList.remove('done-badge'); dot.classList.add('show');
-      document.getElementById('chatSub').textContent = '3 台设备协作中';
-    }
-  }
-  else if (step === 'done') {
-    isDone = true;
-    showPage('dc');
-    badge.classList.add('show', 'done-badge'); dot.classList.remove('show');
-    document.getElementById('chatSub').textContent = '3 台设备 · 协作完成';
-    showDone();
-    document.getElementById('taskCard').style.display = 'block';
-    document.getElementById('taskCard').classList.add('done-card');
-    document.getElementById('taskCard').querySelector('.task-card-status').innerHTML = '<span class="dot"></span> 协作完成';
-    si.classList.add('show', 'si-done');
-    document.getElementById('siText').textContent = '聚会氛围 · 已完成 ✓';
+    document.getElementById('miclawBadge').classList.add('show');
   }
 }
 
-function openChat() {
-  document.getElementById('pageDC').classList.add('hidden-left');
-  document.getElementById('pageChat').classList.remove('hidden-right');
-}
-function closeChat() {
-  document.getElementById('pageChat').classList.add('hidden-right');
-  document.getElementById('pageDC').classList.remove('hidden-left', 'hidden-right');
-}
-function goBack() { showPage('any'); }
-function hideDone() { document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = 'none'); }
-function showDone() { document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = ''); }
+document.getElementById('taskCard').classList.add('show');
 </script>
 </body>
 </html>
