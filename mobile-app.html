@@ -2,26 +2,39 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>融合设备中心 · 方案C MiClaw Badge</title>
-<script>if(sessionStorage.getItem('demo_unlocked')!=='1'&&!window.frameElement)location.replace('index.html');</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#050a15">
+<title>MiClaw 设备协作 Demo</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-body {
-  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
-  background: #050a15; color: #fff; height: 100vh;
-  display: flex; flex-direction: column; align-items: center; overflow: hidden;
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+html, body {
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: #050a15; color: #fff;
+  width: 100%; height: 100%;
+  overflow: hidden; touch-action: manipulation;
+}
+
+/* ===== Demo Nav (顶部状态切换) ===== */
 .demo-nav {
-  flex-shrink: 0; padding: 10px 0 6px;
-  display: flex; justify-content: center; gap: 6px; z-index: 200;
+  position: fixed; top: 0; left: 0; right: 0;
+  padding: calc(var(--safe-top) + 6px) 12px 8px;
+  display: flex; justify-content: center; gap: 6px;
+  z-index: 300;
+  background: linear-gradient(180deg, rgba(5,10,21,0.95) 0%, rgba(5,10,21,0.7) 80%, transparent 100%);
 }
 .demo-nav button {
-  padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 500;
   border: 1px solid rgba(255,255,255,0.1); background: transparent;
   color: rgba(255,255,255,0.4); cursor: pointer; transition: all 0.3s;
+  white-space: nowrap;
 }
 .demo-nav button.active {
   background: rgba(0,122,255,0.15); border-color: rgba(0,122,255,0.3);
@@ -29,15 +42,16 @@ body {
 }
 .demo-nav span { color: rgba(255,255,255,0.15); font-size: 11px; line-height: 30px; }
 
-.phone {
-  width: 390px; height: 700px; border-radius: 32px; overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.08);
-  box-shadow: 0 0 40px rgba(0,0,0,0.4); flex-shrink: 0; position: relative;
+/* ===== 全屏手机容器 ===== */
+.app-container {
+  position: fixed; inset: 0;
+  overflow: hidden;
 }
 
 .page {
   position: absolute; inset: 0;
   transition: transform 0.45s cubic-bezier(0.32,0.72,0,1), opacity 0.45s;
+  will-change: transform, opacity;
 }
 .page.hidden-right { transform: translateX(100%); opacity: 0; pointer-events: none; }
 .page.hidden-left  { transform: translateX(-30%); opacity: 0.5; pointer-events: none; }
@@ -46,10 +60,11 @@ body {
 .dc-page {
   background: linear-gradient(170deg, #1a1040 0%, #1e2a5a 25%, #2a3a6a 45%, #3a4a7a 65%, #4a5a8a 85%, #3a4a7a 100%);
   overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding-top: calc(var(--safe-top) + 44px);
 }
 .status-bar {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 24px 0; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7);
+  padding: 10px 24px 0; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7);
 }
 .dc-header {
   display: flex; justify-content: space-between; align-items: center; padding: 14px 24px 8px;
@@ -58,7 +73,7 @@ body {
 .dc-header .title { font-size: 17px; font-weight: 600; }
 .dc-header .more { font-size: 18px; color: rgba(255,255,255,0.4); }
 
-.bubble-area { position: relative; width: 100%; padding-bottom: 40px; }
+.bubble-area { position: relative; width: 100%; padding-bottom: calc(var(--safe-bottom) + 40px); }
 
 .dev-bubble {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
@@ -77,10 +92,9 @@ body {
 .b-name { font-size: 12px; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; }
 .b-sub  { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: -4px; text-align: center; }
 
-.row-main {
-  display: flex; justify-content: center; padding: 12px 0 8px; position: relative;
-}
-.row-main .b-circle { width: 130px; height: 130px; }
+.row-main { display: flex; justify-content: center; padding: 12px 0 8px; }
+.row-main .b-circle { width: min(130px, 33vw); height: min(130px, 33vw); }
+.row-main .emoji { font-size: min(48px, 12vw); }
 
 .earbuds {
   position: absolute; top: -2px; right: -2px;
@@ -90,89 +104,61 @@ body {
   z-index: 3;
 }
 
-/* ===== MiClaw Badge ===== */
+/* MiClaw Badge */
 .miclaw-badge {
-  position: absolute;
-  bottom: -2px; left: -2px;
-  width: 38px; height: 38px;
-  border-radius: 50%;
+  position: absolute; bottom: -2px; left: -2px;
+  width: 38px; height: 38px; border-radius: 50%;
   background: linear-gradient(135deg, rgba(130,80,220,0.5), rgba(80,140,255,0.4));
   border: 2px solid rgba(160,120,255,0.5);
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  z-index: 3;
-  cursor: pointer;
-  opacity: 0;
-  transform: scale(0);
+  font-size: 16px; z-index: 3; cursor: pointer;
+  opacity: 0; transform: scale(0);
   transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
   box-shadow: 0 0 12px rgba(130,80,220,0.3);
 }
-.miclaw-badge.show {
-  opacity: 1; transform: scale(1);
-}
+.miclaw-badge.show { opacity: 1; transform: scale(1); animation: badge-breathe 2.5s ease-in-out infinite; }
 .miclaw-badge:active { transform: scale(0.85); }
-
-/* 呼吸动效 */
-.miclaw-badge.show {
-  animation: badge-breathe 2.5s ease-in-out infinite;
-}
 @keyframes badge-breathe {
   0%, 100% { box-shadow: 0 0 10px rgba(130,80,220,0.25); }
   50% { box-shadow: 0 0 22px rgba(130,80,220,0.5); }
 }
-
-/* 完成态 */
 .miclaw-badge.done-badge {
   background: linear-gradient(135deg, rgba(0,200,100,0.5), rgba(0,180,80,0.4));
   border-color: rgba(0,230,118,0.5);
-  box-shadow: 0 0 12px rgba(0,200,100,0.3);
   animation: badge-breathe-done 2.5s ease-in-out infinite;
 }
 @keyframes badge-breathe-done {
   0%, 100% { box-shadow: 0 0 10px rgba(0,200,100,0.25); }
   50% { box-shadow: 0 0 22px rgba(0,200,100,0.5); }
 }
-
-/* 小红点（进行中时显示） */
 .badge-dot {
   position: absolute; top: -1px; right: -1px;
   width: 8px; height: 8px; border-radius: 50%;
-  background: #ff5252;
-  border: 1.5px solid rgba(20,10,40,0.8);
+  background: #ff5252; border: 1.5px solid rgba(20,10,40,0.8);
   opacity: 0; transition: opacity 0.3s;
 }
 .badge-dot.show { opacity: 1; animation: dot-blink 1.5s ease-in-out infinite; }
-@keyframes dot-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
+@keyframes dot-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-.row-devices {
-  display: flex; justify-content: space-around; padding: 10px 28px;
-}
-.row-devices .b-circle { width: 95px; height: 95px; }
-
-.row-small {
-  display: flex; justify-content: space-around; padding: 10px 28px;
-}
-.row-small .b-circle { width: 85px; height: 85px; }
-
-.row-bottom {
-  display: flex; justify-content: space-around; padding: 10px 28px;
-}
-.row-bottom .b-circle { width: 85px; height: 85px; }
+.row-devices { display: flex; justify-content: space-around; padding: 10px 28px; }
+.row-devices .b-circle { width: min(95px, 24vw); height: min(95px, 24vw); }
+.row-small { display: flex; justify-content: space-around; padding: 10px 28px; }
+.row-small .b-circle { width: min(85px, 22vw); height: min(85px, 22vw); }
+.row-bottom { display: flex; justify-content: space-around; padding: 10px 28px; }
+.row-bottom .b-circle { width: min(85px, 22vw); height: min(85px, 22vw); }
 .scene-circle { background: rgba(255,180,0,0.1) !important; border-color: rgba(255,180,0,0.2) !important; }
 
 /* ===== 群聊页 ===== */
 .chat-page {
   background: linear-gradient(180deg, #0c1829, #080e1e);
   display: flex; flex-direction: column;
+  padding-top: calc(var(--safe-top) + 44px);
 }
 .chat-header {
   display: flex; align-items: center; gap: 12px;
   padding: 0 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.05);
 }
-.chat-back { font-size: 22px; color: rgba(255,255,255,0.6); cursor: pointer; padding: 4px; }
+.chat-back { font-size: 26px; color: rgba(255,255,255,0.6); cursor: pointer; padding: 4px; }
 .chat-hinfo { flex: 1; }
 .chat-htitle { font-size: 16px; font-weight: 600; }
 .chat-hsub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
@@ -184,6 +170,30 @@ body {
   font-size: 12px; margin-left: -6px;
 }
 .chat-av:first-child { margin-left: 0; }
+
+/* 3D 空间入口卡片 */
+.card-3d {
+  margin: 12px 16px 4px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(6,182,212,0.1), rgba(139,92,246,0.1));
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-3d:active { transform: scale(0.98); opacity: 0.8; }
+.card-3d-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(6,182,212,0.15));
+  border: 1px solid rgba(59,130,246,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.card-3d-info { flex: 1; }
+.card-3d-title { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); }
+.card-3d-desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+.card-3d-arrow { font-size: 12px; color: rgba(59,130,246,0.8); font-weight: 600; }
 
 .chat-msgs {
   flex: 1; overflow-y: auto; padding: 16px 16px 20px;
@@ -197,7 +207,7 @@ body {
   background: linear-gradient(135deg, rgba(0,122,255,0.15), rgba(0,122,255,0.08));
   border: 1px solid rgba(0,122,255,0.2); border-radius: 16px 16px 4px 16px;
   padding: 10px 14px; font-size: 13px; line-height: 1.6;
-  max-width: 280px; color: rgba(180,220,255,0.9);
+  max-width: 85vw; color: rgba(180,220,255,0.9);
 }
 .msg-l { display: flex; gap: 8px; align-items: flex-start; }
 .msg-av {
@@ -213,30 +223,55 @@ body {
 .msg-c .bl {
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
   border-radius: 16px 16px 16px 4px; padding: 10px 14px; font-size: 13px;
-  line-height: 1.5; max-width: 260px; color: rgba(255,255,255,0.8);
+  line-height: 1.5; max-width: 75vw; color: rgba(255,255,255,0.8);
 }
 .msg-c .bl.bl-d { background: rgba(0,230,118,0.06); border-color: rgba(0,230,118,0.12); color: rgba(200,255,220,0.9); }
 .msg-sys { text-align: center; font-size: 11px; color: rgba(255,255,255,0.25); padding: 2px 0; }
 .chat-footer {
-  padding: 14px 20px 28px; text-align: center;
+  padding: 14px 20px calc(var(--safe-bottom) + 14px); text-align: center;
   border-top: 1px solid rgba(255,255,255,0.05);
   background: rgba(8,14,30,0.95); flex-shrink: 0;
 }
 .chat-footer span { font-size: 12px; color: rgba(255,255,255,0.25); }
+
+/* ===== 3D 空间页 ===== */
+.scene-page {
+  background: #0d1117;
+  display: flex; flex-direction: column;
+}
+.scene-header {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: calc(var(--safe-top) + 8px) 16px 12px;
+  display: flex; align-items: center; gap: 12px;
+  z-index: 100;
+  background: linear-gradient(180deg, rgba(13,17,23,0.9) 0%, rgba(13,17,23,0.5) 80%, transparent 100%);
+}
+.scene-close {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: rgba(255,255,255,0.7); cursor: pointer;
+}
+.scene-close:active { background: rgba(255,255,255,0.15); }
+.scene-title { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.9); }
+.scene-iframe {
+  width: 100%; height: 100%; border: none;
+}
 </style>
 </head>
 <body>
 
+<!-- Demo Nav -->
 <div class="demo-nav">
   <button class="active" onclick="showState('normal')">① 日常态</button>
   <span>→</span>
-  <button onclick="showState('collab')">② 协作进行中</button>
+  <button onclick="showState('collab')">② 协作中</button>
   <span>→</span>
-  <button onclick="showState('done')">③ 协作完成</button>
+  <button onclick="showState('done')">③ 完成</button>
 </div>
 
-<div class="phone">
-  <!-- 设备中心 -->
+<div class="app-container">
+  <!-- ===== 设备中心页 ===== -->
   <div class="page dc-page" id="pageDC">
     <div class="status-bar"><span>2:36</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
     <div class="dc-header">
@@ -249,12 +284,11 @@ body {
         <div class="dev-bubble">
           <div class="b-circle">
             <span class="earbuds">🎧</span>
-            <!-- MiClaw Badge -->
             <div class="miclaw-badge" id="miclawBadge" onclick="event.stopPropagation(); openChat();">
-              <img src="miclaw-icon.png" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+              <span style="font-size:18px">⚡</span>
               <span class="badge-dot" id="badgeDot"></span>
             </div>
-            <span class="emoji" style="font-size:48px">📱</span>
+            <span class="emoji" style="font-size:min(48px,12vw)">📱</span>
           </div>
           <span class="b-name">Xiaomi 17 Pro</span>
         </div>
@@ -296,7 +330,7 @@ body {
     </div>
   </div>
 
-  <!-- 群聊页 -->
+  <!-- ===== 群聊页 ===== -->
   <div class="page chat-page hidden-right" id="pageChat">
     <div class="status-bar"><span>2:38</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
     <div class="chat-header">
@@ -310,7 +344,18 @@ body {
         <div class="chat-av">🔊</div><div class="chat-av">📺</div>
       </div>
     </div>
-    <div class="chat-msgs">
+
+    <!-- 3D 空间入口 -->
+    <div class="card-3d" onclick="open3D()">
+      <div class="card-3d-icon">🏠</div>
+      <div class="card-3d-info">
+        <div class="card-3d-title">3D 智能家居空间</div>
+        <div class="card-3d-desc">查看设备协作的实时 3D 场景</div>
+      </div>
+      <div class="card-3d-arrow">进入 →</div>
+    </div>
+
+    <div class="chat-msgs" id="chatMsgs">
       <div class="msg-time">今天 18:32</div>
       <div class="msg-r"><span class="sn">📱 手机 · 指挥</span><div class="bl">老板想搞个聚会氛围，我来分配一下——<br>💡 客厅灯调暖光<br>🔊 音箱放点轻松的<br>📺 电视开个氛围屏保</div></div>
       <div class="msg-l"><div class="msg-av av-d">💡</div><div class="msg-c"><span class="sn">客厅吸顶灯 <span class="msg-tag">IoT</span></span><div class="bl">收到，调暖光 60%</div></div></div>
@@ -326,19 +371,29 @@ body {
     </div>
     <div class="chat-footer"><span>🔒 群聊为只读，设备协作过程自动记录</span></div>
   </div>
+
+  <!-- ===== 3D 空间页 ===== -->
+  <div class="page scene-page hidden-right" id="page3D">
+    <div class="scene-header">
+      <div class="scene-close" onclick="close3D()">✕</div>
+      <span class="scene-title">3D 智能家居空间</span>
+    </div>
+    <iframe id="sceneFrame" class="scene-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+  </div>
 </div>
 
 <script>
 const badge = document.getElementById('miclawBadge');
 const dot = document.getElementById('badgeDot');
 const chatSub = document.getElementById('chatSub');
+let scene3DLoaded = false;
 
 function showState(state) {
   closeChat();
+  close3D();
   document.querySelectorAll('.demo-nav button').forEach((btn, i) => {
     btn.classList.toggle('active', ['normal','collab','done'][i] === state);
   });
-
   if (state === 'normal') {
     badge.classList.remove('show', 'done-badge');
     dot.classList.remove('show');
@@ -360,11 +415,33 @@ function showState(state) {
 function openChat() {
   document.getElementById('pageDC').classList.add('hidden-left');
   document.getElementById('pageChat').classList.remove('hidden-right');
+  // 滚动到底部
+  setTimeout(() => {
+    const msgs = document.getElementById('chatMsgs');
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 500);
 }
+
 function closeChat() {
   document.getElementById('pageChat').classList.add('hidden-right');
   document.getElementById('pageDC').classList.remove('hidden-left');
 }
+
+function open3D() {
+  const frame = document.getElementById('sceneFrame');
+  if (!scene3DLoaded) {
+    frame.src = '3d-scene/mobile.html';
+    scene3DLoaded = true;
+  }
+  document.getElementById('pageChat').classList.add('hidden-left');
+  document.getElementById('page3D').classList.remove('hidden-right');
+}
+
+function close3D() {
+  document.getElementById('page3D').classList.add('hidden-right');
+  document.getElementById('pageChat').classList.remove('hidden-left');
+}
+
 function hideDone() { document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = 'none'); }
 function showDone() { document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = ''); }
 </script>
