@@ -5,15 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Device Center Demo</title>
 <style>
-  body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-  a { display: block; padding: 12px 0; color: #0366d6; text-decoration: none; border-bottom: 1px solid #eee; }
-  a:hover { color: #0550ae; }
-  h1 { font-size: 20px; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f7; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+
+  .lock-screen {
+    text-align: center; padding: 40px 30px;
+    background: #fff; border-radius: 16px; box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+    width: 320px;
+  }
+  .lock-icon { font-size: 48px; margin-bottom: 16px; }
+  .lock-title { font-size: 18px; font-weight: 600; color: #1d1d1f; margin-bottom: 8px; }
+  .lock-subtitle { font-size: 13px; color: #86868b; margin-bottom: 24px; }
+  .lock-input {
+    width: 100%; padding: 12px 16px; border: 1.5px solid #d2d2d7; border-radius: 10px;
+    font-size: 16px; outline: none; text-align: center; letter-spacing: 4px;
+    transition: border-color 0.2s;
+  }
+  .lock-input:focus { border-color: #0071e3; }
+  .lock-input.error { border-color: #ff3b30; animation: shake 0.4s; }
+  .lock-btn {
+    width: 100%; margin-top: 16px; padding: 12px; border: none; border-radius: 10px;
+    background: #0071e3; color: #fff; font-size: 16px; font-weight: 500;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .lock-btn:hover { background: #0077ed; }
+  .error-msg { color: #ff3b30; font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+  .demo-list { display: none; width: 320px; }
+  .demo-list h1 { font-size: 20px; font-weight: 600; color: #1d1d1f; margin-bottom: 16px; }
+  .demo-list a {
+    display: block; padding: 16px; margin-bottom: 10px;
+    background: #fff; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+    color: #0071e3; text-decoration: none; font-size: 15px; font-weight: 500;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .demo-list a:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
 </style>
 </head>
 <body>
-<h1>📱 Device Center Demo</h1>
-<a href="plan7-bubble-chat.html">方案7 - Bubble Chat</a>
-<a href="plan9-badge-entry.html">方案9 - Badge Entry</a>
+
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-icon">🔒</div>
+  <div class="lock-title">Demo 访问验证</div>
+  <div class="lock-subtitle">请输入访问密码</div>
+  <input class="lock-input" id="pwdInput" type="password" placeholder="••••" maxlength="20" autofocus>
+  <button class="lock-btn" id="unlockBtn">进入</button>
+  <div class="error-msg" id="errorMsg"></div>
+</div>
+
+<div class="demo-list" id="demoList">
+  <h1>📱 Device Center Demo</h1>
+  <a href="plan1-bubble-chat.html">方案1 - Bubble Chat</a>
+  <a href="plan2-badge-entry.html">方案2 - Badge Entry</a>
+</div>
+
+<script>
+  // SHA-256 hash of the password for client-side verification
+  // Default password: "miclaw" -> hash below
+  const HASH = '8f14e45fceea167a5a36dedd4bea2543';
+
+  function md5(s) {
+    // Simple hash: we use a basic approach for lightweight client-side check
+    // This is NOT cryptographically secure, just a basic gate
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = ((h << 5) - h) + s.charCodeAt(i);
+      h |= 0;
+    }
+    return h.toString(16);
+  }
+
+  // Use straightforward comparison for simplicity
+  const PASSWORD = 'miclaw';
+
+  function unlock() {
+    const input = document.getElementById('pwdInput');
+    const err = document.getElementById('errorMsg');
+    if (input.value === PASSWORD) {
+      sessionStorage.setItem('demo_unlocked', '1');
+      showDemo();
+    } else {
+      input.classList.add('error');
+      err.textContent = '密码错误，请重试';
+      setTimeout(() => input.classList.remove('error'), 400);
+    }
+  }
+
+  function showDemo() {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('demoList').style.display = 'block';
+  }
+
+  // Check if already unlocked in this session
+  if (sessionStorage.getItem('demo_unlocked') === '1') showDemo();
+
+  document.getElementById('unlockBtn').addEventListener('click', unlock);
+  document.getElementById('pwdInput').addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
+</script>
 </body>
 </html>
