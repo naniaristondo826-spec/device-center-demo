@@ -494,16 +494,15 @@ function hideAll() {
   });
 }
 
-function showPage(name, direction) {
-  const oldIdx = stepOrder.indexOf(currentPage);
+function showPage(name) {
   const newIdx = stepOrder.indexOf(name);
-  const goingForward = newIdx >= oldIdx;
-
   Object.values(pages).forEach(id => {
     const el = document.getElementById(id);
+    const pageKey = Object.keys(pages).find(k => pages[k] === id);
+    const pageIdx = stepOrder.indexOf(pageKey);
     if (id === pages[name]) {
       el.classList.remove('hidden-right', 'hidden-left');
-    } else if (goingForward) {
+    } else if (pageIdx < newIdx) {
       el.classList.add('hidden-left');
       el.classList.remove('hidden-right');
     } else {

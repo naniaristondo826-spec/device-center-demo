@@ -256,16 +256,19 @@ function hideAll() {
 }
 
 function showPage(name) {
-  const oldIdx = stepOrder.indexOf(currentPage);
   const newIdx = stepOrder.indexOf(name);
   Object.values(pages).forEach(id => {
     const el = document.getElementById(id);
+    const pageKey = Object.keys(pages).find(k => pages[k] === id);
+    const pageIdx = stepOrder.indexOf(pageKey);
     if (id === pages[name]) {
       el.classList.remove('hidden-right', 'hidden-left');
-    } else if (newIdx >= oldIdx) {
-      el.classList.add('hidden-left'); el.classList.remove('hidden-right');
+    } else if (pageIdx < newIdx) {
+      el.classList.add('hidden-left');
+      el.classList.remove('hidden-right');
     } else {
-      el.classList.add('hidden-right'); el.classList.remove('hidden-left');
+      el.classList.add('hidden-right');
+      el.classList.remove('hidden-left');
     }
   });
   currentPage = name;
