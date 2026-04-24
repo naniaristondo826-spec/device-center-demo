@@ -472,9 +472,7 @@ function go(step) {
     si.classList.remove('si-done');
     document.getElementById('siText').textContent = '聚会氛围 · 3台协作中';
     document.getElementById('siStatus').style.display = '';
-    document.getElementById('collabBubble').classList.add('show');
-    document.getElementById('collabBubble').classList.remove('done');
-    document.getElementById('collabName').textContent = '聚会氛围';
+    document.getElementById('collabBubble').classList.remove('show', 'done');
     document.getElementById('chatSub').textContent = '3 台设备协作中';
     hideDone();
   }
@@ -485,10 +483,12 @@ function go(step) {
       document.getElementById('collabBubble').classList.add('done');
       document.getElementById('collabName').textContent = '聚会氛围 ✓';
       document.getElementById('chatSub').textContent = '3 台设备 · 协作完成';
+      showDone();
     } else {
       document.getElementById('collabBubble').classList.remove('done');
       document.getElementById('collabName').textContent = '聚会氛围';
       document.getElementById('chatSub').textContent = '3 台设备协作中';
+      hideDone();
     }
   }
   else if (step === 'done') {
