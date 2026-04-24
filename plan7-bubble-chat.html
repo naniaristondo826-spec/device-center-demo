@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>融合设备中心 · 协作球入口 Demo</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: #050a15;
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* 顶部导航 */
+.demo-nav {
+  flex-shrink: 0;
+  padding: 10px 0 6px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  z-index: 200;
+}
+.demo-nav button {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.demo-nav button.active {
+  background: rgba(0,122,255,0.15);
+  border-color: rgba(0,122,255,0.3);
+  color: rgba(100,180,255,0.9);
+}
+.demo-nav span { color: rgba(255,255,255,0.15); font-size: 11px; line-height: 30px; }
+
+/* 手机壳 */
+.phone {
+  width: 390px;
+  height: 700px;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 40px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* ========== 页面容器 ========== */
+.page {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.45s cubic-bezier(0.32,0.72,0,1), opacity 0.45s;
+}
+.page.hidden-right { transform: translateX(100%); opacity: 0; pointer-events: none; }
+.page.hidden-left  { transform: translateX(-30%); opacity: 0.5; pointer-events: none; }
+
+/* ========== 设备中心页 ========== */
+.dc-page {
+  background: linear-gradient(170deg, #1a1040 0%, #1e2a5a 25%, #2a3a6a 45%, #3a4a7a 65%, #4a5a8a 85%, #3a4a7a 100%);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.status-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 24px 0; font-size: 14px; font-weight: 600;
+  color: rgba(255,255,255,0.7);
+}
+.dc-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 24px 8px;
+}
+.dc-header .back { font-size: 22px; color: rgba(255,255,255,0.6); }
+.dc-header .title { font-size: 17px; font-weight: 600; }
+.dc-header .more { font-size: 18px; color: rgba(255,255,255,0.4); }
+
+/* 气泡区域 */
+.bubble-area {
+  position: relative;
+  width: 100%;
+  padding-bottom: 40px;
+}
+
+/* 设备气泡通用 */
+.dev-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.dev-bubble:active { transform: scale(0.95); }
+
+.b-circle {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: rgba(180,200,230,0.08);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.b-name { font-size: 12px; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; }
+.b-sub  { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: -4px; text-align: center; }
+
+/* 主设备行 */
+.row-main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0;
+  padding: 12px 0 8px;
+  position: relative;
+}
+.row-main .b-circle { width: 130px; height: 130px; }
+.row-main .emoji { font-size: 48px; }
+.earbuds {
+  position: absolute;
+  top: -2px; right: -2px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(50,120,255,0.35);
+  border: 1.5px solid rgba(100,160,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+
+/* 设备行 */
+.row-devices {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 28px;
+}
+.row-devices .b-circle { width: 95px; height: 95px; }
+.row-devices .emoji { font-size: 32px; }
+
+.row-small {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 28px;
+}
+.row-small .b-circle { width: 85px; height: 85px; }
+.row-small .emoji { font-size: 28px; }
+
+/* 底部行 */
+.row-bottom {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 28px;
+}
+.row-bottom .b-circle { width: 85px; height: 85px; }
+.row-bottom .emoji { font-size: 28px; }
+.scene-circle {
+  background: rgba(255,180,0,0.1) !important;
+  border-color: rgba(255,180,0,0.2) !important;
+}
+
+/* ========== 协作球 ========== */
+.collab-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.5s cubic-bezier(0.34,1.56,0.64,1), max-width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  opacity: 0;
+  max-width: 0;
+  overflow: visible;
+  pointer-events: none;
+  align-self: flex-start;
+  margin-top: 8px;
+}
+.collab-bubble:active { transform: scale(0.95); }
+.collab-bubble.show {
+  opacity: 1;
+  max-width: 120px;
+  pointer-events: auto;
+}
+
+.collab-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 协作球背景 */
+.collab-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(100,60,200,0.25), rgba(60,120,255,0.2));
+  border: 1.5px solid rgba(130,100,255,0.3);
+}
+
+/* 呼吸光晕 */
+.collab-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(100,80,220,0.2) 0%, transparent 70%);
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+.collab-bubble.done .collab-glow {
+  background: radial-gradient(circle, rgba(0,200,100,0.2) 0%, transparent 70%);
+}
+.collab-bubble.done .collab-bg {
+  background: linear-gradient(135deg, rgba(0,200,100,0.2), rgba(0,180,80,0.15));
+  border-color: rgba(0,230,118,0.35);
+}
+@keyframes glow-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* 球内设备图标 - 三角形构图 */
+.collab-devices {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.collab-devices-top {
+  display: flex;
+  justify-content: center;
+}
+.collab-devices-bottom {
+  display: flex;
+  gap: 6px;
+}
+.cd-icon {
+  font-size: 18px;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+  animation: cd-float 3s ease-in-out infinite;
+}
+.cd-icon:nth-child(1) { animation-delay: 0s; }
+.cd-icon:nth-child(2) { animation-delay: -1s; }
+.collab-devices-top .cd-icon { animation-delay: -2s; }
+
+@keyframes cd-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.collab-name {
+  font-size: 11px;
+  color: rgba(200,180,255,0.8);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.collab-bubble.done .collab-name { color: rgba(180,255,210,0.8); }
+
+/* ========== 群聊页 ========== */
+.chat-page {
+  background: linear-gradient(180deg, #0c1829, #080e1e);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.chat-back {
+  font-size: 22px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  padding: 4px;
+}
+.chat-hinfo { flex: 1; }
+.chat-htitle { font-size: 16px; font-weight: 600; }
+.chat-hsub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+.chat-avatars { display: flex; }
+.chat-av {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 2px solid #0c1829;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; margin-left: -6px;
+}
+.chat-av:first-child { margin-left: 0; }
+
+/* 消息流 */
+.chat-msgs {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.msg-time { text-align: center; font-size: 10px; color: rgba(255,255,255,0.2); padding: 4px 0; }
+
+/* 主设备消息 */
+.msg-r {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+}
+.msg-r .sn { font-size: 10px; color: rgba(0,150,255,0.6); font-weight: 500; margin-right: 4px; }
+.msg-r .bl {
+  background: linear-gradient(135deg, rgba(0,122,255,0.15), rgba(0,122,255,0.08));
+  border: 1px solid rgba(0,122,255,0.2);
+  border-radius: 16px 16px 4px 16px;
+  padding: 10px 14px; font-size: 13px; line-height: 1.6;
+  max-width: 280px; color: rgba(180,220,255,0.9);
+}
+
+/* 工作设备消息 */
+.msg-l { display: flex; gap: 8px; align-items: flex-start; }
+.msg-av {
+  width: 32px; height: 32px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.msg-av.av-d { background: rgba(0,230,118,0.08); border-color: rgba(0,230,118,0.2); }
+.msg-av.av-w { background: rgba(255,215,64,0.08); border-color: rgba(255,215,64,0.15); }
+.msg-c { display: flex; flex-direction: column; gap: 3px; }
+.msg-c .sn {
+  font-size: 10px; color: rgba(255,255,255,0.35); font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.msg-tag { font-size: 9px; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
+.msg-c .bl {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px 16px 16px 4px;
+  padding: 10px 14px; font-size: 13px; line-height: 1.5;
+  max-width: 260px; color: rgba(255,255,255,0.8);
+}
+.msg-c .bl.bl-d {
+  background: rgba(0,230,118,0.06);
+  border-color: rgba(0,230,118,0.12);
+  color: rgba(200,255,220,0.9);
+}
+
+.msg-sys { text-align: center; font-size: 11px; color: rgba(255,255,255,0.25); padding: 2px 0; }
+
+.chat-footer {
+  padding: 14px 20px 28px;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  background: rgba(8,14,30,0.95);
+  flex-shrink: 0;
+}
+.chat-footer span { font-size: 12px; color: rgba(255,255,255,0.25); }
+</style>
+</head>
+<body>
+
+<div class="demo-nav">
+  <button class="active" onclick="showState('normal')">① 日常态</button>
+  <span>→</span>
+  <button onclick="showState('collab')">② 协作进行中</button>
+  <span>→</span>
+  <button onclick="showState('done')">③ 协作完成</button>
+</div>
+
+<div class="phone">
+  <!-- ===== 设备中心页 ===== -->
+  <div class="page dc-page" id="pageDC">
+    <div class="status-bar"><span>2:36</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
+    <div class="dc-header">
+      <span class="back">←</span>
+      <span class="title">融合设备中心</span>
+      <span class="more">⋮</span>
+    </div>
+
+    <div class="bubble-area">
+      <!-- 第一行：主设备 + 协作球（右上方） -->
+      <div class="row-main">
+        <div class="dev-bubble">
+          <div class="b-circle">
+            <span class="earbuds">🎧</span>
+            <span class="emoji" style="font-size:48px">📱</span>
+          </div>
+          <span class="b-name">Xiaomi 17 Pro</span>
+        </div>
+        <!-- 协作球，手机右上方 -->
+        <div class="collab-bubble" id="collabBubble" onclick="openChat()">
+          <div class="collab-circle">
+            <div class="collab-glow"></div>
+            <div class="collab-bg"></div>
+            <div class="collab-devices">
+              <div class="collab-devices-top"><span class="cd-icon">💡</span></div>
+              <div class="collab-devices-bottom"><span class="cd-icon">🔊</span><span class="cd-icon">📺</span></div>
+            </div>
+          </div>
+          <span class="collab-name" id="collabName">聚会氛围</span>
+        </div>
+      </div>
+
+      <!-- 第二行：Pad + 音箱 -->
+      <div class="row-devices">
+        <div class="dev-bubble">
+          <div class="b-circle">
+            <span class="emoji">📱</span>
+          </div>
+          <span class="b-name">Xiaomi Pad 7</span>
+        </div>
+        <div class="dev-bubble">
+          <div class="b-circle">
+            <span class="emoji">🔊</span>
+          </div>
+          <span class="b-name">Xiaomi sound</span>
+          <span class="b-sub">pro</span>
+        </div>
+      </div>
+
+      <!-- 第三行：电视 + 监控（始终存在） -->
+      <div class="row-small">
+        <div class="dev-bubble">
+          <div class="b-circle">
+            <span class="emoji">📺</span>
+          </div>
+          <span class="b-name">小米电视</span>
+          <span class="b-sub">客厅</span>
+        </div>
+
+        <div class="dev-bubble">
+          <div class="b-circle">
+            <span class="emoji">📷</span>
+          </div>
+          <span class="b-name">监控</span>
+          <span class="b-sub">客厅</span>
+        </div>
+      </div>
+
+      <!-- 第四行：空调 + 回家 -->
+      <div class="row-bottom">
+        <div class="dev-bubble">
+          <div class="b-circle">
+            <span class="emoji">❄️</span>
+          </div>
+          <span class="b-name">卧室的空调</span>
+          <span class="b-sub">卧室</span>
+        </div>
+        <div class="dev-bubble">
+          <div class="b-circle scene-circle">
+            <span class="emoji">🏠</span>
+          </div>
+          <span class="b-name">回家</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 群聊页 ===== -->
+  <div class="page chat-page hidden-right" id="pageChat">
+    <div class="status-bar"><span>2:38</span><span style="font-size:12px">📶 WiFi 🔋</span></div>
+    <div class="chat-header">
+      <span class="chat-back" onclick="closeChat()">‹</span>
+      <div class="chat-hinfo">
+        <div class="chat-htitle">设备协作群聊</div>
+        <div class="chat-hsub" id="chatSub">3 台设备协作中</div>
+      </div>
+      <div class="chat-avatars">
+        <div class="chat-av">📱</div>
+        <div class="chat-av">💡</div>
+        <div class="chat-av">🔊</div>
+        <div class="chat-av">📺</div>
+      </div>
+    </div>
+
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg-time">今天 18:32</div>
+
+      <div class="msg-r">
+        <span class="sn">📱 手机 · 指挥</span>
+        <div class="bl">老板想搞个聚会氛围，我来分配一下——<br>💡 客厅灯调暖光<br>🔊 音箱放点轻松的<br>📺 电视开个氛围屏保</div>
+      </div>
+
+      <div class="msg-l">
+        <div class="msg-av av-d">💡</div>
+        <div class="msg-c">
+          <span class="sn">客厅吸顶灯 <span class="msg-tag">IoT</span></span>
+          <div class="bl">收到，调暖光 60%</div>
+        </div>
+      </div>
+
+      <div class="msg-l">
+        <div class="msg-av av-w">🔊</div>
+        <div class="msg-c">
+          <span class="sn">小米音箱 <span class="msg-tag">Extension</span></span>
+          <div class="bl">好的，找个爵士歌单 🎵</div>
+        </div>
+      </div>
+
+      <div class="msg-l">
+        <div class="msg-av av-w">📺</div>
+        <div class="msg-c">
+          <span class="sn">小米电视 <span class="msg-tag">Extension+</span></span>
+          <div class="bl">收到，生成祝福卡片中</div>
+        </div>
+      </div>
+
+      <div class="msg-l">
+        <div class="msg-av av-d">💡</div>
+        <div class="msg-c">
+          <span class="sn">客厅吸顶灯</span>
+          <div class="bl bl-d">暖光已调好 💡</div>
+        </div>
+      </div>
+
+      <div class="msg-l">
+        <div class="msg-av av-w">🔊</div>
+        <div class="msg-c">
+          <span class="sn">小米音箱</span>
+          <div class="bl">找到了，「深夜爵士」歌单，要放吗？🎵</div>
+        </div>
+      </div>
+
+      <div class="msg-r">
+        <span class="sn">📱 手机</span>
+        <div class="bl">放吧 👍</div>
+      </div>
+
+      <!-- 完成态额外消息 -->
+      <div class="msg-l msg-done-extra" style="display:none">
+        <div class="msg-av av-d">🔊</div>
+        <div class="msg-c">
+          <span class="sn">小米音箱</span>
+          <div class="bl bl-d">开始播放「深夜爵士」🎶</div>
+        </div>
+      </div>
+
+      <div class="msg-l msg-done-extra" style="display:none">
+        <div class="msg-av av-d">📺</div>
+        <div class="msg-c">
+          <span class="sn">小米电视</span>
+          <div class="bl bl-d">氛围屏保已开 🎂</div>
+        </div>
+      </div>
+
+      <div class="msg-r msg-done-extra" style="display:none">
+        <span class="sn">📱 手机</span>
+        <div class="bl">都搞定了 🎉 灯光暖了、音乐放着、电视也准备好了！</div>
+      </div>
+
+      <div class="msg-sys msg-done-extra" style="display:none">— 协作完成 · 3 台设备参与 —</div>
+    </div>
+
+    <div class="chat-footer">
+      <span>🔒 群聊为只读，设备协作过程自动记录</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const pageDC = document.getElementById('pageDC');
+const pageChat = document.getElementById('pageChat');
+const collabBubble = document.getElementById('collabBubble');
+const collabName = document.getElementById('collabName');
+const chatSub = document.getElementById('chatSub');
+
+let currentState = 'normal';
+
+function showState(state) {
+  currentState = state;
+  closeChat();
+
+  document.querySelectorAll('.demo-nav button').forEach((btn, i) => {
+    btn.classList.toggle('active', ['normal','collab','done'][i] === state);
+  });
+
+  if (state === 'normal') {
+    collabBubble.classList.remove('show', 'done');
+    hideDoneMessages();
+  }
+  else if (state === 'collab') {
+    collabBubble.classList.add('show');
+    collabBubble.classList.remove('done');
+    collabName.textContent = '聚会氛围';
+    chatSub.textContent = '3 台设备协作中';
+    hideDoneMessages();
+  }
+  else if (state === 'done') {
+    collabBubble.classList.add('show', 'done');
+    collabName.textContent = '聚会氛围 ✓';
+    chatSub.textContent = '3 台设备 · 协作完成';
+    showDoneMessages();
+  }
+}
+
+function openChat() {
+  pageDC.classList.add('hidden-left');
+  pageChat.classList.remove('hidden-right');
+}
+
+function closeChat() {
+  pageChat.classList.add('hidden-right');
+  pageDC.classList.remove('hidden-left');
+}
+
+function hideDoneMessages() {
+  document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = 'none');
+}
+function showDoneMessages() {
+  document.querySelectorAll('.msg-done-extra').forEach(el => el.style.display = '');
+}
+</script>
+</body>
+</html>
